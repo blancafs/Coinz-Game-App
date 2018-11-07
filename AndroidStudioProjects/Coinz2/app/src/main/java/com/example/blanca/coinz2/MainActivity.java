@@ -46,6 +46,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String downloadDate = ""; // Format YYYY/MM/DD
     private final String preferencesFile = "MyPrefsFile"; // for storing preferences
 
+    SharedPreferences settings;
+
+
+    //============================= ON METHODS ====================================//
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,34 +79,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //if (!Helpers.getTodaysFile().exists()) {
         //    Log.d(tag, "Helpers file not found, starting download");
-       //     downloadData();
+        //     downloadData();
 
 
         // Restore preferences
-        SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
+        settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
 
         // Use "" as the default value, when app is first run for example
         //downloadDate = settings.getString("lastDownloadDate", "");
         //Log.d(tag, "[onStart] Recalled lastDownloadDate is '" + downloadDate + "'");
 
-        /*todays = Helpers.getTodaysFile();
-        if (!DownloadCompleteRunner.result.equals("")) {
-            // This happens when we have downloaded the json data from the server
-            json_data = DownloadCompleteRunner.result;
-            Helpers.writeToFile(todays.getName(), json_data);
-            Log.d(tag, "[onstart] already have json data downloaded, and have written it to file.");
-        } else {
-            // This happens if we already have the data inside local memory as a txt file
-            try {
-                json_data = Helpers.readFile(todays);
-                Log.d(tag, "[onstart] already have data in txt file");
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-
-        }
-        dfjgdhgjkldhfgjkhdfgkjhdf
-        Log.d(tag, "JSON DATA: " + json_data);*/
     }
 
     // On stop called even if our app is killed by the operating system
@@ -136,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // ================= User Methods ===========================================//
     private void userLogin() {
         String email = name1.getText().toString().trim();
         String password = password1.getText().toString().trim();

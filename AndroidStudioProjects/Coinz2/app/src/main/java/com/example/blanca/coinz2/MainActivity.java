@@ -1,6 +1,8 @@
 package com.example.blanca.coinz2;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -40,6 +42,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String NAME_FIELD = "Name";
     private static final String PASSWORD_FIELD = "Password";
 
+    //Map Download variables
+    private String downloadDate = ""; // Format YYYY/MM/DD
+    private final String preferencesFile = "MyPrefsFile"; // for storing preferences
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(tag, "onCreate [MainActivity just started running ==========================================================================================================]");
 
         mAuth = FirebaseAuth.getInstance();
+
         // Assigning Ids from Login page to vars //
         name1 = (EditText) findViewById(R.id.etEmail1);
         password1 = (EditText) findViewById(R.id.etPassword1);
@@ -55,11 +62,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         login1.setOnClickListener(this);
         tosignup = (Button) findViewById(R.id.bt2SignUp);
         tosignup.setOnClickListener(this);
-
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
-
-
     }
 
     @Override
@@ -69,6 +73,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FirebaseUser currentUser = mAuth.getCurrentUser();
         //updateUI(currentUser);
 
+        //if (!Helpers.getTodaysFile().exists()) {
+        //    Log.d(tag, "Helpers file not found, starting download");
+       //     downloadData();
+
+
+        // Restore preferences
+        SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
+
+        // Use "" as the default value, when app is first run for example
+        //downloadDate = settings.getString("lastDownloadDate", "");
+        //Log.d(tag, "[onStart] Recalled lastDownloadDate is '" + downloadDate + "'");
+
+        /*todays = Helpers.getTodaysFile();
+        if (!DownloadCompleteRunner.result.equals("")) {
+            // This happens when we have downloaded the json data from the server
+            json_data = DownloadCompleteRunner.result;
+            Helpers.writeToFile(todays.getName(), json_data);
+            Log.d(tag, "[onstart] already have json data downloaded, and have written it to file.");
+        } else {
+            // This happens if we already have the data inside local memory as a txt file
+            try {
+                json_data = Helpers.readFile(todays);
+                Log.d(tag, "[onstart] already have data in txt file");
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+        }
+        Log.d(tag, "JSON DATA: " + json_data);*/
+    }
+
+    // On stop called even if our app is killed by the operating system
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(tag, "[onStop] String lastDownloadDate of " + downloadDate);
+
+        //All objects are from android.context.Context
+        SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("lastDownloadDate", downloadDate);
+
+        //Apply the edits!
+        editor.apply();
     }
 
     @Override
@@ -90,7 +138,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void userLogin() {
         String email = name1.getText().toString().trim();
         String password = password1.getText().toString().trim();
-
 
         if (email.isEmpty()) {
             Log.d(tag,"userLogin [email area is found empty]");
@@ -138,4 +185,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    /*private static void downloadData() {
+        DownloadFileTask task = new DownloadFileTask();
+        task.execute("https://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson");
+    }*/
 }

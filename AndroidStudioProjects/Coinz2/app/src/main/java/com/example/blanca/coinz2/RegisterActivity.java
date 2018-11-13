@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -21,6 +22,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private EditText etEmail;
     private EditText etPassword;
     private Button login;
+    private Toolbar toolbar;
 
     private FirebaseAuth mAuth;
 
@@ -32,6 +34,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         etEmail = (EditText) findViewById(R.id.etEmail2);
         etPassword = (EditText) findViewById(R.id.etPassword2);
         login = (Button) findViewById(R.id.btSignUp);
+        toolbar = (Toolbar) findViewById(R.id.nav_actionbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mAuth = FirebaseAuth.getInstance();
         findViewById(R.id.btSignUp).setOnClickListener(this);

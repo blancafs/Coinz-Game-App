@@ -4,9 +4,14 @@ import android.annotation.TargetApi;
 import android.location.Location;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 // Map related imports
 import com.mapbox.mapboxsdk.Mapbox;
@@ -60,13 +65,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     // Public Access FeatureCollection ==//
     private MapCoinz mapCoinz;
 
+    // Navigation Bar variables =========//
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle actionBarDrawerToggle;
+    private Toolbar toolbar;
+
     // Functional Variables =============//
     //private Player player;
     //private LocatDatabase locaDatabase;
 
-    // UI Variables
-    //private DrawerLayout mDrawerLayout;
-   // private ActionBarDrawerToggle mToggle;
+
     //private NavigationView navView;
     //private MenuItem toAccount;
     //private MenuItem toWallet;
@@ -85,6 +93,18 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+
+        // Setting up toolbar
+        toolbar = (Toolbar) findViewById(R.id.nav_actionbar);
+        setSupportActionBar(toolbar);
+
+        // Setting up navigation bar
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
+        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+        actionBarDrawerToggle.syncState();
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -147,7 +167,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
-
+    // ---------------- Navigation Bar methods ------------------------------------//
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     // ---------------- Data retrieval and set up -------------------------------- //
 

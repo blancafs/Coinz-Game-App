@@ -1,16 +1,19 @@
 package com.example.blanca.coinz2;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 
 // Map related imports
@@ -33,7 +36,6 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 
 // JSON related imports
-import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 
 import java.io.File;
@@ -42,7 +44,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, LocationEngineListener, PermissionsListener{
+public class MapActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, LocationEngineListener, PermissionsListener{
+
+    ///////////////
+    // Variables //
+    ///////////////
 
     // Mapbox Variables =================//
     private static final String tag = "MapActivity";
@@ -68,20 +74,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     // Navigation Bar variables =========//
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
+    private MenuItem menuItem;
     private Toolbar toolbar;
 
     // Functional Variables =============//
-    //private Player player;
-    //private LocatDatabase locaDatabase;
+    public static Player player;
 
+    ////////////////
+    // On methods //
+    ////////////////
 
-    //private NavigationView navView;
-    //private MenuItem toAccount;
-    //private MenuItem toWallet;
-    //private MenuItem toSettings;
-    //private MenuItem toExit;
-
-    // -------------- ON METHODS ---------------------------------------------//
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,16 +97,21 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mapView.getMapAsync(this);
 
         // Setting up toolbar
-        toolbar = (Toolbar) findViewById(R.id.nav_actionbar);
+        toolbar = findViewById(R.id.nav_actionbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Setting up navigation bar
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
+        drawerLayout = findViewById(R.id.drawerLayout);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
+        setNavigationViewListener();
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        // Initialising player object - already stablished username in login
+        player = new Player(MySharedPreferences.getUserName());
+        MapCoinz.bankedcoins = MySharedPreferences.getBankedCoins(getApplicationContext());
+        MapCoinz.walletcoins = MySharedPreferences.getWalletCoins(getApplicationContext());
     }
 
     @TargetApi(Build.VERSION_CODES.O)
@@ -118,7 +125,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setUpData();
         Log.d(tag, "[onStart] data set up ====================================");
 
-        // Set the global  feature collection
+        // Set the global  feature collection ===//
         mapCoinz = new MapCoinz(FeatureCollection.fromJson(coinData));
         Log.d(tag, "[onStart] mapCoinz feature collection created");
 
@@ -126,8 +133,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
                 //  Adding coins to map using external class MapCoinz ==============//
-                mapCoinz.addMarkers(map);
-
+                MapCoinz.addMarkers(map);
             }
         });
     }
@@ -167,7 +173,56 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
-    // ---------------- Navigation Bar methods ------------------------------------//
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
+
+
+    /////////////////////
+    // Navigation Menu //
+    /////////////////////
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.nav_wallet:
+                Log.d(tag,"[onMenuItemClick] wallet clicked in nav menu =================================================");
+                startActivity(new Intent(this, WalletActivity.class));
+                return true;
+            case R.id.nav_community:
+                Log.d(tag,"[onMenuItemClick] community clicked in nav menu =================================================");
+                startActivity(new Intent(this, CommunityActivity.class));
+                return true;
+            case R.id.nav_bank:
+                Log.d(tag,"[onMenuItemClick] bank clicked in nav menu =================================================");
+                startActivity(new Intent(this, BankActivity.class));
+                return true;
+            case R.id.nav_account:
+                Log.d(tag,"[onMenuItemClick] account clicked in nav menu =================================================");
+                startActivity(new Intent(this, AccountActivity.class));
+                return true;
+            case R.id.nav_logout:
+                Log.d(tag,"[onMenuItemClick] logout clicked in nav menu =================================================");
+                startActivity(new Intent(this, MainActivity.class));
+                return true;
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    private void setNavigationViewListener() {
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    /////////////////////
+    // Navigation Bar ///
+    /////////////////////
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
@@ -176,7 +231,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return super.onOptionsItemSelected(item);
     }
 
-    // ---------------- Data retrieval and set up -------------------------------- //
+    /////////////////////
+    // Data retrieval ///
+    /////////////////////
 
     // makes coindata the json string from todays file ==== //
     private void downloadData() {
@@ -203,8 +260,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             e.printStackTrace();
         }
     }
-
     // if file never downloaded, download data, else read file and make coin data ==== //
+
+    /////////////////////
+    // Data setup ///////
+    /////////////////////
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void setUpData() {
         // Get todays date on a file and output log
@@ -247,6 +308,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
+    //////////////////////
+    // Location and Map //
+    //////////////////////
     @Override
     public void onConnected() {
         Log.d(tag, "[onConnected] requesting location updates ==================================================");
@@ -258,19 +322,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (location == null) {
             Log.d(tag, "[onLocationChanged] location is null ==================================================");
         } else {
-            Log.d(tag, "[onLocationChanged] location is not null ==================================================");
             originLocation = location;
             setCameraPosition(location);
         }
 
-        /*Boolean pickedUp = player.searchForCoins(location);
-            if(pickedUp){
-                mapView.getMapAsync(new OnMapReadyCallback() {
-                    @Override
-                    public void onMapReady(MapboxMap mapboxMap) {
-                        // Updata the status of map and player
-                        player.setLocation(new LatLng(location.getLatitude(), location.getLongitude()));
-                        coinzCollection.updateMapPlayerState(map, player); */
+        mapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(MapboxMap mapboxMap) {
+                //  Adding coins to map using external class MapCoinz ==============//
+                MapCoinz.updateCoins(mapboxMap, location);
+            }
+        });
     }
 
     @Override
@@ -278,7 +340,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d(tag, "[onExplanationNeeded] Permissions: " + permissionsToExplain.toString() + "==================================================");
         //present toast or dialog
     }
-
     @Override
     public void onPermissionResult(boolean granted) {
         Log.d(tag, "[onPermissionResult] granted == " + granted + "==================================================");
@@ -288,7 +349,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             // Open dialogue with user
         }
     }
-
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
         if (mapboxMap == null) {
@@ -333,7 +393,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-
     private void initializeLocationLayer() {
         if (mapView == null) {
             Log.d(tag, "[initializeLocationLayer] mapView is null ==================================================");
@@ -353,5 +412,4 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         map.animateCamera(CameraUpdateFactory.newLatLng(latLng));
     }
-
 }

@@ -17,7 +17,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
-public class RegisterActivity extends AppCompatActivity implements View.OnClickListener{
+public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText etEmail;
     private EditText etPassword;
@@ -26,21 +26,44 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     private FirebaseAuth mAuth;
 
+    ////////////////
+    // On methods //
+    ////////////////
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        etEmail = (EditText) findViewById(R.id.etEmail2);
-        etPassword = (EditText) findViewById(R.id.etPassword2);
-        login = (Button) findViewById(R.id.btSignUp);
-        toolbar = (Toolbar) findViewById(R.id.nav_actionbar);
+        etEmail = findViewById(R.id.etEmail2);
+        etPassword = findViewById(R.id.etPassword2);
+        login = findViewById(R.id.btSignUp);
+        toolbar = findViewById(R.id.nav_actionbar_register);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mAuth = FirebaseAuth.getInstance();
         findViewById(R.id.btSignUp).setOnClickListener(this);
     }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btSignUp:
+                registerUser();
+                break;
+        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
+
+    //////////////////
+    // User methods //
+    //////////////////
 
     private void registerUser() {
         String email = etEmail.getText().toString().trim();
@@ -61,7 +84,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             etPassword.requestFocus();
             return;
         }
-        if (password.length()<6) {
+        if (password.length() < 6) {
             etPassword.setError("Minimum password length should be 6");
             etPassword.requestFocus();
             return;
@@ -72,6 +95,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     Toast.makeText(getApplicationContext(), "User Registered Successfully !", Toast.LENGTH_SHORT).show();
+                    MySharedPreferences.setUserName(email);
                     startActivity(new Intent(RegisterActivity.this, MapActivity.class));
                 } else {
                     if (task.getException() instanceof FirebaseAuthUserCollisionException) {
@@ -83,14 +107,5 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         });
 
 
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch(view.getId()){
-            case R.id.btSignUp:
-                registerUser();
-                break;
-        }
     }
 }

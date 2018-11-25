@@ -2,9 +2,16 @@ package com.example.blanca.coinz2;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.location.Location;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
+
+
+import com.mapbox.mapboxsdk.annotations.Icon;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
+import com.mapbox.mapboxsdk.geometry.LatLng;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -39,12 +46,12 @@ public class Helpers {
         return new File(path, fileName);
     }
 
-    // Testing Method
+    //
     public static void writeToFile(String fileName, String data){
         Context context = getApplicationContext();
         File path = context.getFilesDir();
         File file = new File(path, fileName);
-        FileOutputStream stream = null;;
+        FileOutputStream stream = null;
         // Open a file stream
         try {
             if (!file.exists())
@@ -84,6 +91,36 @@ public class Helpers {
         return text;
     }
 
+    public static Icon getIcon(Coin coin) {
+        IconFactory iconFactory = IconFactory.getInstance(getApplicationContext());
+        switch (coin.getCurrency()) {
+            //return correct icon design depending on currency
+            case ("PENY"):
+                return iconFactory.fromResource(R.mipmap.penny_icon);
+            case ("QUID"):
+                return iconFactory.fromResource(R.mipmap.quid_icon);
+            case ("SHIL"):
+                return iconFactory.fromResource(R.mipmap.shilling_icon);
+            case ("DOLR"):
+                return iconFactory.fromResource(R.mipmap.dollar_icon);
+        }
+        return iconFactory.fromResource(R.drawable.mapbox_info_icon_default);
+    }
 
+    public static double dist(Location location, LatLng latlng) {
+        double lat1 = location.getLatitude();
+        double lng1 = location.getLongitude();
+        double lat2 = latlng.getLatitude();
+        double lng2 = latlng.getLongitude();
+        double earthRadius = 6371000; //meters
+        double dLat = Math.toRadians(lat2-lat1);
+        double dLng = Math.toRadians(lng2-lng1);
+        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLng/2) * Math.sin(dLng/2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double dist = earthRadius * c;
+        return dist;
+    }
 }
 

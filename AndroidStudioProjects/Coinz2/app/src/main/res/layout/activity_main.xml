@@ -7,7 +7,9 @@
     tools:context=".MainActivity">
 
 
-    <include layout="@layout/navigation_actionbar"
+    <include
+        android:id="@+id/nav_actionbar_main"
+        layout="@layout/navigation_actionbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

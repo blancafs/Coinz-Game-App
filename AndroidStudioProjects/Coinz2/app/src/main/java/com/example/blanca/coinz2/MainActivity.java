@@ -25,6 +25,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
+    ////////////////
+    // Variables ///
+    ////////////////
+
     // Declaring private variables from first screen //
     private static final String tag = "MainActivity.java";
     private EditText name1;
@@ -44,14 +48,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String NAME_FIELD = "Name";
     private static final String PASSWORD_FIELD = "Password";
 
-    //Map Download variables
+    //Map Download variables //
     private String downloadDate = ""; // Format YYYY/MM/DD
     private final String preferencesFile = "MyPrefsFile"; // for storing preferences
-
     SharedPreferences settings;
+    SharedPreferences.Editor editor;
+
+    // Player //
+    Player player;
 
 
-    //============================= ON METHODS ====================================//
+    ////////////////
+    // On methods //
+    ////////////////
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,15 +71,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAuth = FirebaseAuth.getInstance();
 
         // Assigning Ids from Login page to vars //
-        name1 = (EditText) findViewById(R.id.etEmail1);
-        password1 = (EditText) findViewById(R.id.etPassword1);
-        login1 = (Button) findViewById(R.id.btLogin1);
+        name1 = findViewById(R.id.etEmail1);
+        password1 = findViewById(R.id.etPassword1);
+        login1 = findViewById(R.id.btLogin1);
         login1.setOnClickListener(this);
-        tosignup = (Button) findViewById(R.id.bt2SignUp);
+        tosignup = findViewById(R.id.bt2SignUp);
         tosignup.setOnClickListener(this);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
-        toolbar = (Toolbar) findViewById(R.id.nav_actionbar);
+        toolbar = findViewById(R.id.nav_actionbar_main);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -82,17 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         FirebaseUser currentUser = mAuth.getCurrentUser();
         //updateUI(currentUser);
 
-        //if (!Helpers.getTodaysFile().exists()) {
-        //    Log.d(tag, "Helpers file not found, starting download");
-        //     downloadData();
-
-
-        // Restore preferences
-        settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
-
-        // Use "" as the default value, when app is first run for example
-        //downloadDate = settings.getString("lastDownloadDate", "");
-        //Log.d(tag, "[onStart] Recalled lastDownloadDate is '" + downloadDate + "'");
+        // String strIWAntToGet = MySharedPreferences.getPrefUserName(context);
 
     }
 
@@ -122,12 +121,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.btLogin1:
                 Log.d(tag,"onClick[Button to log in has been clicked. To user login method.]");
+                String ema = name1.getText().toString();
+                MySharedPreferences.setUserName(ema);
                 userLogin();
                 break;
         }
     }
 
-    // ================= User Methods ===========================================//
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
+
+    //////////////////
+    // User methods //
+    //////////////////
+
     private void userLogin() {
         String email = name1.getText().toString().trim();
         String password = password1.getText().toString().trim();
@@ -168,7 +178,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 progressBar.setVisibility(View.GONE);
                 if (task.isSuccessful()) {
                     Log.d(tag,"userLogin onComplete[sign in successfull!]");
-                   // Toast.makeText(getApplicationContext(), "Logged MapActivity Successfully !", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Logged In Successfully !", Toast.LENGTH_SHORT).show();
+                    MySharedPreferences.setUserName(email);
                     startActivity(new Intent(MainActivity.this, MapActivity.class));
                 } else {
                     Log.d(tag," userLogin onComplete[sign up unsuccessfull]");
@@ -177,9 +188,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
-
-    /*private static void downloadData() {
-        DownloadFileTask task = new DownloadFileTask();
-        task.execute("https://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson");
-    }*/
 }

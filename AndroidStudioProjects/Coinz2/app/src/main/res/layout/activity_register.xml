@@ -6,7 +6,9 @@
     android:layout_height="match_parent"
     tools:context=".RegisterActivity">
 
-    <include layout="@layout/navigation_actionbar"
+    <include
+        android:id="@+id/nav_actionbar_register"
+        layout="@layout/navigation_actionbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

@@ -54,10 +54,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     SharedPreferences settings;
     SharedPreferences.Editor editor;
 
-    // Player //
-    Player player;
-
-
     ////////////////
     // On methods //
     ////////////////
@@ -88,9 +84,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onStart() {
         super.onStart();
         // Check if user signed in and update UI accordingly //
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        //updateUI(currentUser);
-
         // String strIWAntToGet = MySharedPreferences.getPrefUserName(context);
 
     }
@@ -122,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btLogin1:
                 Log.d(tag,"onClick[Button to log in has been clicked. To user login method.]");
                 String ema = name1.getText().toString();
-                MySharedPreferences.setUserName(ema);
+                MySharedPreferences.setUserName(getApplicationContext(), ema);
                 userLogin();
                 break;
         }
@@ -179,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (task.isSuccessful()) {
                     Log.d(tag,"userLogin onComplete[sign in successfull!]");
                     Toast.makeText(getApplicationContext(), "Logged In Successfully !", Toast.LENGTH_SHORT).show();
-                    MySharedPreferences.setUserName(email);
+                    MySharedPreferences.setUserName(getApplicationContext(),email);
                     startActivity(new Intent(MainActivity.this, MapActivity.class));
                 } else {
                     Log.d(tag," userLogin onComplete[sign up unsuccessfull]");

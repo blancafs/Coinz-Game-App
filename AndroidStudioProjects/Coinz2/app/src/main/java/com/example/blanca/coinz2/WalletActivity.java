@@ -13,7 +13,7 @@ public class WalletActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wallet);
 
-        toolbar = findViewById(R.id.nav_actionbar_wallet);
+        toolbar = findViewById(R.id.nav_actionbar_account);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }

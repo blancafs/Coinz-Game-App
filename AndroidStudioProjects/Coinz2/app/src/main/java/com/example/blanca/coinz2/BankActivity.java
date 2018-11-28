@@ -13,8 +13,6 @@ public class BankActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bank);
 
-        toolbar = findViewById(R.id.nav_actionbar_bank);
-        setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 

@@ -95,7 +95,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     Toast.makeText(getApplicationContext(), "User Registered Successfully !", Toast.LENGTH_SHORT).show();
-                    MySharedPreferences.setUserName(email);
+                    MySharedPreferences.setUserName(getApplicationContext(), email);
                     startActivity(new Intent(RegisterActivity.this, MapActivity.class));
                 } else {
                     if (task.getException() instanceof FirebaseAuthUserCollisionException) {

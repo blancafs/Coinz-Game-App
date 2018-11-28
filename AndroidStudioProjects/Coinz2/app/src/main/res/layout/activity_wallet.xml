@@ -7,7 +7,7 @@
     tools:context=".WalletActivity">
 
     <include
-        android:id="@+id/nav_actionbar_wallet"
+        android:id="@+id/nav_actionbar_account"
         layout="@layout/navigation_actionbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -26,6 +26,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nav_actionbar_wallet" />
+        app:layout_constraintTop_toBottomOf="@+id/nav_actionbar_account" />
 
 </android.support.constraint.ConstraintLayout>

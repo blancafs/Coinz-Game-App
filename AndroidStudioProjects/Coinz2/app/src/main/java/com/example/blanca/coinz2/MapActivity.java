@@ -74,7 +74,6 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     // Navigation Bar variables =========//
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
-    private MenuItem menuItem;
     private Toolbar toolbar;
 
     // Functional Variables =============//
@@ -84,6 +83,8 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     // On methods //
     ////////////////
 
+    @TargetApi(Build.VERSION_CODES.O)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,17 +110,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         setNavigationViewListener();
 
         // Initialising player object - already stablished username in login
-        player = new Player(MySharedPreferences.getUserName());
-        MapCoinz.bankedcoins = MySharedPreferences.getBankedCoins(getApplicationContext());
-        MapCoinz.walletcoins = MySharedPreferences.getWalletCoins(getApplicationContext());
-    }
-
-    @TargetApi(Build.VERSION_CODES.O)
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    @Override
-    public void onStart() {
-        super.onStart();
-        mapView.onStart();
+        player = new Player(getApplicationContext(), MySharedPreferences.getUserName(getApplicationContext()));
 
         // Set up json data ==================//
         setUpData();
@@ -133,9 +124,18 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
                 //  Adding coins to map using external class MapCoinz ==============//
-                MapCoinz.addMarkers(map);
+                mapCoinz.addMarkers(map);
             }
         });
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    public void onStart() {
+        super.onStart();
+        mapView.onStart();
+
     }
 
     @Override
@@ -326,13 +326,17 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             setCameraPosition(location);
         }
 
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(MapboxMap mapboxMap) {
-                //  Adding coins to map using external class MapCoinz ==============//
-                MapCoinz.updateCoins(mapboxMap, location);
-            }
-        });
+        Log.d(tag, "[onLocationChanged] location has changed, updating coinz=========================");
+        mapCoinz.updateCoins(map, location);
+
+//        mapView.getMapAsync(new OnMapReadyCallback() {
+//            @Override
+//            public void onMapReady(MapboxMap mapboxMap) {
+//                //  Adding coins to map using external class MapCoinz ==============//
+//                Log.d(tag, "[onLocationChanged] updating coinz =========================");
+//                mapCoinz.updateCoins(mapboxMap, location);
+//            }
+//        });
     }
 
     @Override

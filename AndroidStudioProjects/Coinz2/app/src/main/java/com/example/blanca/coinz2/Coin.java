@@ -71,4 +71,8 @@ public class Coin {
         Log.d(tag, "[stringify] answer is " + ans + "============================");
         return ans;
     }
+
+    public Boolean isEqualto(Coin coin) {
+        return (this.id.equals(coin.getId()));
+    }
 }

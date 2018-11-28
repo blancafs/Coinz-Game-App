@@ -15,6 +15,7 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import io.opencensus.internal.StringUtil;
 
@@ -25,22 +26,18 @@ public class MapCoinz {
 
     private static final String tag = "MapCoinz";
 
-    private static FeatureCollection featureCollection;
-    private static ArrayList<Coin> onmapcoins;
-    public static ArrayList<Coin> bankedcoins;
-    //= MySharedPreferences.getBankedCoins(getApplicationContext());
-    public static ArrayList<Coin> walletcoins;
-    //= MySharedPreferences.getWalletCoins(getApplicationContext());
+    private FeatureCollection featureCollection;
+    private ArrayList<Coin> onmapcoins;
 
     public MapCoinz(FeatureCollection mapCoinz) {
         featureCollection = mapCoinz;
         Log.d(tag, "Coinz initialised correctly=========================");
     }
 
-    public static void addMarkers(MapboxMap mapboxMap) {
+    public void addMarkers(MapboxMap mapboxMap) {
         Log.d(tag, "[addMarkers] started ====================================");
         onmapcoins = new ArrayList<>();
-        Log.d(tag, "[addMarkers] bankedcoins has length " + bankedcoins.size() + " walletcoins has size " + walletcoins.size());
+        Log.d(tag, "[addMarkers] bankedcoins has length " + player.getBankedCoinz().size() + " walletcoins has size " + player.getWalletCoinz().size());
 
         for (Feature feature : featureCollection.features()) {
             // Coin features ==============================================//
@@ -69,47 +66,46 @@ public class MapCoinz {
             MarkerViewOptions markerViewOptions = new MarkerViewOptions().title(title).snippet(snippet).icon(icon).position(latLng);
             coin.setMarkerViewOptions(markerViewOptions);
 
-           //  Finally adding coin to arraylist - only if not in bank or wallet!
-            if (MySharedPreferences.getBankedCoins(getApplicationContext()).isEmpty() && MySharedPreferences.getWalletCoins(getApplicationContext()).isEmpty()) {
-                mapboxMap.addMarker(markerViewOptions);
+            if (!player.isInBank(coin) && !player.isInWallet(coin)) {
                 onmapcoins.add(coin);
-                Log.d(tag, " added coin when bankedcoins and walletcoins empty! ==========================================");
-            }
-            // to be able to compare ids, so as to check whether they have already picked up the coin, and only show those markers they have not!
-            ArrayList<String> bnwcoins_ids = new ArrayList<>();
-            for (Coin c : bankedcoins) {
-                bnwcoins_ids.add(c.getId());
-            }
-            for (Coin c : walletcoins) {
-                bnwcoins_ids.add(c.getId());
-            }
-            //  if coin not in banked coins AND not in wallet coins, add it
-            if (!bnwcoins_ids.contains(coin.getId())) {
                 mapboxMap.addMarker(markerViewOptions);
-                onmapcoins.add(coin);
                 Log.d(tag, "[addMarkers] coin added to mapcoins as not in wallet or bank, id " + coin.getId() + " ");
-                Log.d(tag, "[addMarkers] Marker created successfully ===========================");
-                Log.d(tag, "[addMarkers] position = " + latLng.toString() + " =====================================");
             }
+            Log.d(tag, "[addMarkers] Marker created successfully ===========================");
         }
     }
 
-    public static void deleteCoin(MapboxMap mapboxMap, Coin coin) {
+    public void deleteCoin(MapboxMap mapboxMap, Coin coin) {
         mapboxMap.removeMarker(coin.getMarkerViewOptions().getMarker());
     }
 
-    public static void updateCoins(MapboxMap mapboxMap, Location location) {
-        for (Coin a : new ArrayList<Coin>(onmapcoins)) {
+    public void updateCoins(MapboxMap mapboxMap, Location location) {
+        Log.d(tag, "[updateCoins] og size of onmapcoins is " + onmapcoins.size() + "=========");
+        ArrayList<Coin> toremove = new ArrayList<>();
+        for (Coin a : onmapcoins) {
             Double dist = Helpers.dist(location, a.getLatLng());
             if (dist <= 25) {
+                // deletes coin from map
                 deleteCoin(mapboxMap, a);
-                onmapcoins.remove(a);
-                Log.d(tag, "[updateCoins] added wallet coin to players wallet");
+                // update list of coins on map
+                toremove.add(a);
                 player.addToWallet(a);
-                walletcoins.add(a);
-                MySharedPreferences.addWalletCoin(getApplicationContext(), a);
-                Log.d(tag, "[updateCoins] added wallet coin to preferences");
+                Log.d(tag, "[updateCoins] marker removed and coin added to toremovelist");
+                // adds to wallet of player and to coin total
+            }
+        }
+        toRemove(toremove);
+        Log.d(tag, "[updateCoinz] is done");
+    }
+
+    public void toRemove(ArrayList<Coin> list) {
+        for (Coin a: list) {
+            for (Coin c: new ArrayList<Coin>(onmapcoins)) {
+                if (a.isEqualto(c)) {
+                    onmapcoins.remove(a);
+                    Log.d(tag, "[toRemove] coin " +a.getId()+ " removed from onmapcoins ==================");
+                }
             }
         }
     }
-}
+}//player.addToWallet(a);

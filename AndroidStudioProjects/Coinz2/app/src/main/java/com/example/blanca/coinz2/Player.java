@@ -28,9 +28,9 @@ public class Player {
         updateLevel();
     }
 
-    public void setCommunityLevel(Integer level) {
-        this.communityLevel = level;
-    }
+    //public void updateCommunityLevel() {
+       // this.communityLevel = level;
+   // }
 
     // you go up every ten coins
     private void updateLevel() {

@@ -1,12 +1,15 @@
 package com.example.blanca.coinz2;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Patterns;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -33,14 +36,11 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        setContentView(R.layout.activity_register2);
 
         etEmail = findViewById(R.id.etEmail2);
         etPassword = findViewById(R.id.etPassword2);
         login = findViewById(R.id.btSignUp);
-        toolbar = findViewById(R.id.nav_actionbar_register);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mAuth = FirebaseAuth.getInstance();
         findViewById(R.id.btSignUp).setOnClickListener(this);
@@ -94,7 +94,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(getApplicationContext(), "User Registered Successfully !", Toast.LENGTH_SHORT).show();
+                    LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE );
+                    View toastLayout = inflater.inflate(R.layout.registertoast, findViewById(R.id.llCustom2));
+                    Toast toast = new Toast(getApplicationContext());
+                    toast.setDuration(Toast.LENGTH_SHORT);
+                    toast.setView(toastLayout);
+                    toast.show();
                     MySharedPreferences.setUserName(getApplicationContext(), email);
                     startActivity(new Intent(RegisterActivity.this, MapActivity.class));
                 } else {

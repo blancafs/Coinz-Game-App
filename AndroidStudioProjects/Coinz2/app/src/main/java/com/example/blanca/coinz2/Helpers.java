@@ -18,10 +18,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 
 
+import static com.example.blanca.coinz2.MapActivity.conversions;
 import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 public class Helpers {
@@ -30,24 +32,24 @@ public class Helpers {
 
     // METHODS
     // NEEDS IMPLEMENTATION
-    public static String getTodaysURL(){
+    public static String getTodaysURL() {
         // Set today's URL form Json repo and get json file
         return "https://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson";
     }
 
-    public static File getTodaysFile(){
+    public static File getTodaysFile() {
         Context context = getApplicationContext();
         File path = context.getFilesDir();
         DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
         Date date = new Date();
         String name = dateFormat.format(date);
-        String fileName = "JSON_"+ name +".txt";
+        String fileName = "JSON_" + name + ".txt";
         Log.d(tag, "[getTodaysFile]: " + fileName + " was returned");
         return new File(path, fileName);
     }
 
     //
-    public static void writeToFile(String fileName, String data){
+    public static void writeToFile(String fileName, String data) {
         Context context = getApplicationContext();
         File path = context.getFilesDir();
         File file = new File(path, fileName);
@@ -60,7 +62,7 @@ public class Helpers {
             e.printStackTrace();
         }
 
-        try{
+        try {
             stream = new FileOutputStream(file);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -113,14 +115,55 @@ public class Helpers {
         double lat2 = latlng.getLatitude();
         double lng2 = latlng.getLongitude();
         double earthRadius = 6371000; //meters
-        double dLat = Math.toRadians(lat2-lat1);
-        double dLng = Math.toRadians(lng2-lng1);
-        double a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLng = Math.toRadians(lng2 - lng1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
                 Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                        Math.sin(dLng/2) * Math.sin(dLng/2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         double dist = earthRadius * c;
         return dist;
+    }
+
+    public static ArrayList<Double> getCurrencies(String coindata) {
+
+        ArrayList<Double> answer = new ArrayList<>(); // format is SHIL DOLR QUID PENY
+
+        String[] s = coindata.split(","); // format is SHIL DOLR QUID PENY
+        String shilcur = s[4].trim().split(":")[2].trim(); // s[4] = "rates": {"SHIL": cur, so we take the third string when split by :
+        Log.d(tag, "[getCurrencies] shilcur is " +shilcur);
+        answer.add(Double.parseDouble(shilcur));
+
+        // apply same concept for all conversions
+        String dolrcur =s[5].trim().split(":")[1].trim(); // s[5] = "DOLR": curr
+        Log.d(tag, "[getCurrencies] dolrcur is " +dolrcur);
+        answer.add(Double.parseDouble(dolrcur));
+
+        String quidcur = s[6].trim().split(":")[1].trim(); // s[6] = "QUID : curr
+        Log.d(tag, "[getCurrencies] quidcur is " +quidcur);
+        answer.add(Double.parseDouble(quidcur));
+
+        String penycur = s[7].trim().split(":")[1].trim().replace("}", "");
+        Log.d(tag, "[getCurrencies] penycur is " +penycur);
+        answer.add(Double.parseDouble(penycur));
+
+        return answer;
+    }
+
+    public static double goldTransform(String value, String currency) {
+        double val = Double.parseDouble(value);
+        double goldconv = 0;
+        switch (currency) {
+            case "SHIL":
+                goldconv = conversions.get(0);
+            case "DOLR":
+                goldconv = conversions.get(1);
+            case "QUID":
+                goldconv = conversions.get(2);
+            case "PENY":
+                goldconv = conversions.get(3);
+        }
+        return val*goldconv;
     }
 }
 

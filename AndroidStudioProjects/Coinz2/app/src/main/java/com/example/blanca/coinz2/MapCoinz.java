@@ -34,6 +34,11 @@ public class MapCoinz {
         Log.d(tag, "Coinz initialised correctly=========================");
     }
 
+    public void setCurrencies() {
+        String ans = featureCollection.toJson();
+        Log.d(tag, "[setCurrencies] featurecollection to json gave " +ans +"==================");
+    }
+
     public void addMarkers(MapboxMap mapboxMap) {
         Log.d(tag, "[addMarkers] started ====================================");
         onmapcoins = new ArrayList<>();
@@ -44,8 +49,6 @@ public class MapCoinz {
             String id = feature.getStringProperty("id");
             String value = feature.getStringProperty("value");
             String currency = feature.getStringProperty("currency");
-            String markersymbol = feature.getStringProperty("marker-symbol");
-            String markercolor = feature.getStringProperty("marker-color");
 
             // Snippet and title strings, individual to each feature =====//
             String snippet = value;

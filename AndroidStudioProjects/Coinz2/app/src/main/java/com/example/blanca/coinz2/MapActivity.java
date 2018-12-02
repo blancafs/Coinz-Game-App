@@ -41,6 +41,7 @@ import com.mapbox.geojson.FeatureCollection;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -65,11 +66,11 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     private String todayURL;
     private final String dataFile = "";
     private final String preferencesFile = "MyPrefsFile"; // for storing preferences
-    private final String testFiil= "test.txt";
     private String coinData = "";
 
     // Public Access FeatureCollection ==//
     private MapCoinz mapCoinz;
+    public static ArrayList<Double> conversions; // format SHIL, DOLR, QUID, PENY
 
     // Navigation Bar variables =========//
     private DrawerLayout drawerLayout;
@@ -115,6 +116,12 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         // Set up json data ==================//
         setUpData();
         Log.d(tag, "[onStart] data set up ====================================");
+
+
+       // Setting up Currencies
+        String[] curStrings = {"SHIL", "DOLR", "QUID", "PENY"};
+        conversions = new ArrayList<>();
+        conversions = Helpers.getCurrencies(coinData);
 
         // Set the global  feature collection ===//
         mapCoinz = new MapCoinz(FeatureCollection.fromJson(coinData));

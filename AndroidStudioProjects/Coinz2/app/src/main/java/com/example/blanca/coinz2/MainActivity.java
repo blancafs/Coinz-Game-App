@@ -6,12 +6,13 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -21,6 +22,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.w3c.dom.Text;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
@@ -34,9 +37,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText name1;
     private EditText password1;
     private Button login1;
-    private Button tosignup;
-    private ProgressBar progressBar;
-    private Toolbar toolbar;
+    private TextView tosignup;
 
     // Firebase variables //
     private FirebaseAuth mAuth;
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main2);
         Log.d(tag, "onCreate [MainActivity just started running ==========================================================================================================]");
 
         mAuth = FirebaseAuth.getInstance();
@@ -73,11 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         login1.setOnClickListener(this);
         tosignup = findViewById(R.id.bt2SignUp);
         tosignup.setOnClickListener(this);
-        progressBar = findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.GONE);
-        toolbar = findViewById(R.id.nav_actionbar_main);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
     }
 
     @Override
@@ -163,15 +160,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
-        progressBar.setVisibility(View.VISIBLE);
 
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                progressBar.setVisibility(View.GONE);
                 if (task.isSuccessful()) {
                     Log.d(tag,"userLogin onComplete[sign in successfull!]");
-                    Toast.makeText(getApplicationContext(), "Logged In Successfully !", Toast.LENGTH_SHORT).show();
+                    // toast that shows how to work screen
+                    LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE );
+                    View toastLayout = inflater.inflate(R.layout.logintoast, findViewById(R.id.llCustom2));
+                    Toast toast = new Toast(getApplicationContext());
+                    toast.setDuration(Toast.LENGTH_SHORT);
+                    toast.setView(toastLayout);
+                    toast.show();
                     MySharedPreferences.setUserName(getApplicationContext(),email);
                     startActivity(new Intent(MainActivity.this, MapActivity.class));
                 } else {

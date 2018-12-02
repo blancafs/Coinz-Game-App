@@ -66,6 +66,12 @@ public class Coin {
     // Functions //
     ///////////////
 
+    @Override
+    public String toString() {
+        String ans = value + "   " + currency;
+        return ans;
+    }
+
     public String stringify() {
         String ans = id + "/" + value + "/" + currency;
         Log.d(tag, "[stringify] answer is " + ans + "============================");

@@ -5,5 +5,8 @@
     <color name="yellow">#ffffbb33</color>
     <color name="white">#FFFFFF</color>
     <color name="gray">#C0C0C0</color>
-
+    <color name="dolr">#81c639</color>
+    <color name="peny">#ff0000</color>
+    <color name="quid">#ffff00</color>
+    <color name="shil">#0000ff</color>
 </resources>

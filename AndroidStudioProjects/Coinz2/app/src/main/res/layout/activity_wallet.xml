@@ -10,16 +10,16 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        android:background="@drawable/gradientbackground"
+        android:layout_height="match_parent"
+        >
 
         <LinearLayout
-            android:id="@+id/l1"
+            android:id="@+id/toplinear"
             android:layout_width="700dp"
             android:layout_height="242dp"
             android:layout_marginTop="0dp"
             android:layout_marginBottom="0dp"
-            android:background="@drawable/gradientbackground"
+            android:background="@drawable/darkgradientbackground"
             android:orientation="vertical">
 
             <ImageView
@@ -38,7 +38,7 @@
                 android:layout_marginTop="12dp"
                 android:fontFamily="serif-monospace"
                 android:text="My Wallet"
-                android:textColor="@color/colorPrimaryDark"
+                android:textColor="@color/yellow"
                 android:textSize="20dp"
                 android:textStyle="bold" />
 
@@ -80,22 +80,22 @@
             android:layout_height="88dp"
             android:layout_marginTop="570dp"
             android:layout_marginBottom="0dp"
-            android:background="@drawable/gradientbackground"
+            android:background="@drawable/darkgradientbackground"
             android:gravity="right">
 
             <Button
-                android:id="@+id/btComm"
+                android:id="@+id/btWallet2Bank"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
                 android:layout_marginLeft="2dp"
                 android:layout_marginTop="15dp"
-                android:layout_marginRight="110dp"
-                android:background="@color/graylight"
+                android:layout_marginRight="170dp"
+                android:background="@drawable/rounded_corner"
                 android:elevation="56dp"
                 android:fontFamily="serif-monospace"
                 android:gravity="center_horizontal"
-                android:text="COMMUNITY"
-                android:textColor="@color/colorPrimaryDark"
+                android:text="BANK"
+                android:textColor="@color/white"
                 android:padding="10dp"
                 android:textSize="22dp"
                 android:textStyle="bold"
@@ -108,12 +108,12 @@
                 android:layout_marginTop="15dp"
                 android:layout_marginRight="30dp"
                 android:paddingTop="10dp"
-                android:background="@color/graylight"
+                android:background="@drawable/rounded_corner"
                 android:elevation="56dp"
                 android:fontFamily="serif-monospace"
                 android:gravity="center_horizontal"
                 android:text="MAP"
-                android:textColor="@color/colorPrimaryDark"
+                android:textColor="@color/white"
                 android:textSize="22dp"
                 android:textStyle="bold"
                 app:layout_constraintVertical_bias="0.114" />

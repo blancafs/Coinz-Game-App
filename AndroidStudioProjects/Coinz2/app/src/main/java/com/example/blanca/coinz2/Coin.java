@@ -23,7 +23,6 @@ public class Coin {
         this.currency = currency;
         //this.markersymbol = markersymbol;
         //this.markercolor = markercolor;
-        this.latLng = latLng;
     }
 
     /////////////
@@ -41,6 +40,22 @@ public class Coin {
     /////////////
     // Getters //
     /////////////
+
+    public  double getGold() {
+        double ans = Double.parseDouble(value);
+        double convrate = 0;
+        switch (currency) {
+            case "SHIL":
+                convrate = MapActivity.conversions.get(0);
+            case "DOLR":
+                convrate = MapActivity.conversions.get(1);
+            case "QUID":
+                convrate = MapActivity.conversions.get(2);
+            case "PENY":
+                convrate = MapActivity.conversions.get(3);
+        }
+        return ans*convrate;
+    }
 
     public String getId() {
         return id;

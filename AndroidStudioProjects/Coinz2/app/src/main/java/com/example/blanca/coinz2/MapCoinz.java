@@ -30,7 +30,7 @@ public class MapCoinz {
     private ArrayList<Coin> onmapcoins;
 
     public MapCoinz(FeatureCollection mapCoinz) {
-        featureCollection = mapCoinz;
+        this.featureCollection = mapCoinz;
         Log.d(tag, "Coinz initialised correctly=========================");
     }
 

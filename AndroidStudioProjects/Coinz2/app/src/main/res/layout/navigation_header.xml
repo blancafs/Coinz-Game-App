@@ -4,18 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="140dp"
-    android:background="@color/colorPrimaryDark"
+    android:background="@drawable/darkgradientbackground"
     android:padding="20dp"
     android:visibility="visible">
 
     <TextView
         android:id="@+id/tvNavHeader"
-        android:layout_width="130dp"
+        android:layout_width="165dp"
         android:layout_height="70dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
+        android:fontFamily="serif-monospace"
         android:padding="10dp"
         android:text="Coinz"
         android:textColor="@android:color/white"

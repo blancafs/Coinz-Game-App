@@ -16,8 +16,11 @@ public class Player {
     private String[] friends;
     private ArrayList<Coin> walletCoinz;
     private ArrayList<Coin> bankedCoinz;
+    private ArrayList<Coin> specialCoinz;
     private int totalSteps;
     private int totalCoins;
+    private int specialsallowed;
+    private double gold;
 
     public Player(Context context, String email) {
         this.email = email;
@@ -25,7 +28,10 @@ public class Player {
         this.walletCoinz = MySharedPreferences.getWalletCoins(context, email);
         this.bankedCoinz = MySharedPreferences.getBankedCoins(context, email);
         this.totalCoins = MySharedPreferences.getTotalCoins(context, email);
+        this.specialCoinz = MySharedPreferences.getStoredSpecials(context, email);
+        this.gold = MySharedPreferences.getGoldTotal(context, email);
         updateLevel();
+        this.specialsallowed = level + specialCoinz.size();
     }
 
     //public void updateCommunityLevel() {
@@ -46,8 +52,30 @@ public class Player {
         // so that when you pick up a coin it automatically adds to total coins picked up
     }
 
-    public void addToBank(Coin coin) {
-        bankedCoinz.add(coin);
+    public Boolean addToBank(Coin coin) {
+        // so only 25 banked coins are allowed per day
+        if (bankedCoinz.size()>=25) {
+            return false;
+        } else {
+            // if less than 25, add coin to banked coins and remove from wallet.
+            double coingold = coin.getGold();
+            gold += coingold;
+            walletCoinz.remove(coin);
+            bankedCoinz.add(coin);
+            MySharedPreferences.addBankCoin(getApplicationContext(), coin);
+            return true;
+        }
+    }
+
+    public Boolean addToSpecialCoins(Coin coin) {
+        if (specialCoinz.size()<= specialsallowed) {
+            specialCoinz.add(coin);
+            walletCoinz.remove(coin);
+            MySharedPreferences.addSpecialCoin(getApplicationContext(), coin);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public boolean isInBank(Coin coin) {
@@ -74,8 +102,16 @@ public class Player {
 
     public String getEmail() { return email;}
 
+    public double getGold() {
+        return gold;
+    }
+
     public int getCommunityLevel() {
         return communityLevel;
+    }
+
+    public ArrayList<Coin> getSpecialCoinz() {
+        return specialCoinz;
     }
 
     public ArrayList<Coin> getWalletCoinz() {
@@ -84,6 +120,7 @@ public class Player {
 
     public ArrayList<Coin> getBankedCoinz() { return bankedCoinz;
     }
+
     public int getTotalCoins() { return totalCoins; }
 
 }

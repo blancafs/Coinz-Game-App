@@ -14,7 +14,9 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 
 import io.opencensus.internal.StringUtil;
@@ -62,6 +64,11 @@ public class MapCoinz {
             Coin coin = new Coin(id, value, currency);
             coin.setLocation(latLng);
 
+            // simple date format
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy");
+            String date = simpleDateFormat.format(new Date());
+            coin.setDate(date);
+
             // Coin icon
             Icon icon = Helpers.getIcon(coin);
 
@@ -69,7 +76,7 @@ public class MapCoinz {
             MarkerViewOptions markerViewOptions = new MarkerViewOptions().title(title).snippet(snippet).icon(icon).position(latLng);
             coin.setMarkerViewOptions(markerViewOptions);
 
-            if (!player.isInBank(coin) && !player.isInWallet(coin)) {
+            if (!player.isInBank(coin) && !player.isInWallet(coin) && !player.isInSpecial(coin)) {
                 onmapcoins.add(coin);
                 mapboxMap.addMarker(markerViewOptions);
                 Log.d(tag, "[addMarkers] coin added to mapcoins as not in wallet or bank, id " + coin.getId() + " ");
@@ -87,13 +94,13 @@ public class MapCoinz {
         ArrayList<Coin> toremove = new ArrayList<>();
         for (Coin a : onmapcoins) {
             Double dist = Helpers.dist(location, a.getLatLng());
-            if (dist <= 25) {
+            if ((dist <= 25)) {
                 // deletes coin from map
                 deleteCoin(mapboxMap, a);
                 // update list of coins on map
                 toremove.add(a);
                 player.addToWallet(a);
-                Log.d(tag, "[updateCoins] marker removed and coin added to toremovelist");
+                Log.d(tag, "[updateCoins] marker removed and coin added to toremovelist, and addtowallet called ==========================");
                 // adds to wallet of player and to coin total
             }
         }
@@ -111,4 +118,4 @@ public class MapCoinz {
             }
         }
     }
-}//player.addToWallet(a);
+}

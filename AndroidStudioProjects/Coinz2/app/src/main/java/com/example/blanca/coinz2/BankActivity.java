@@ -14,7 +14,6 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 
 import static com.example.blanca.coinz2.MapActivity.conversions;
-import static com.example.blanca.coinz2.MapActivity.player;
 
 public class BankActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -23,18 +22,21 @@ public class BankActivity extends AppCompatActivity implements View.OnClickListe
     private ListView listView;
     private ArrayList<Coin> coins;
 
-    private TextView goldval;
+    static TextView goldval;
     private TextView textViewSHIL;
     private TextView textViewDOLR;
     private TextView textViewQUID;
     private TextView textViewPENY;
     private Button mapbutton;
     private Button walletbutton;
+    private static Player player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bank);
+
+        player = MapActivity.player;
 
         coins = new ArrayList<>(player.getSpecialCoinz());
 

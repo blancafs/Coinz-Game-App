@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 // Map related imports
 import com.mapbox.mapboxsdk.Mapbox;
@@ -76,9 +77,17 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private Toolbar toolbar;
+    static TextView name;
 
     // Functional Variables =============//
     public static Player player;
+    static TextView noSteps;
+    static TextView noCoinsPi;
+    static TextView noCoinsSen;
+    static TextView plalevel;
+    static TextView comlevel;
+    static TextView gold;
+    static TextView chosen;
 
     ////////////////
     // On methods //
@@ -103,6 +112,17 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // setting textview variables so no crash
+//        name = findViewById(R.id.tvMyAccount);
+//        noSteps = findViewById(R.id.tvNoSteps);
+//        noCoinsPi = findViewById(R.id.tvNoCoinsPicked);
+//        noCoinsSen = findViewById(R.id.tvNoCoinsSent);
+//        plalevel = findViewById(R.id.tvPlayerLevel);
+//        comlevel = findViewById(R.id.tvComLevel);
+//        gold = findViewById(R.id.tvGold);
+//        chosen = findViewById(R.id.tvChosenCoin);
+//        chosen.setText("");
+
         // Setting up navigation bar
         drawerLayout = findViewById(R.id.drawerLayout);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
@@ -120,7 +140,6 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
        // Setting up Currencies
         String[] curStrings = {"SHIL", "DOLR", "QUID", "PENY"};
-        conversions = new ArrayList<>();
         conversions = Helpers.getCurrencies(coinData);
 
         // Set the global  feature collection ===//
@@ -332,18 +351,17 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             originLocation = location;
             setCameraPosition(location);
         }
-
         Log.d(tag, "[onLocationChanged] location has changed, updating coinz=========================");
-        mapCoinz.updateCoins(map, location);
+        //mapCoinz.updateCoins(map, location);
 
-//        mapView.getMapAsync(new OnMapReadyCallback() {
-//            @Override
-//            public void onMapReady(MapboxMap mapboxMap) {
-//                //  Adding coins to map using external class MapCoinz ==============//
-//                Log.d(tag, "[onLocationChanged] updating coinz =========================");
-//                mapCoinz.updateCoins(mapboxMap, location);
-//            }
-//        });
+        mapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(MapboxMap mapboxMap) {
+                //  Adding coins to map using external class MapCoinz ==============//
+                Log.d(tag, "[onLocationChanged] updating coinz =========================");
+                mapCoinz.updateCoins(mapboxMap, location);
+            }
+        });
     }
 
     @Override

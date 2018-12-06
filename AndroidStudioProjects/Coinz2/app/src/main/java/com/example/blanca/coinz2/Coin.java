@@ -6,6 +6,8 @@ import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerViewOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
+import java.util.Date;
+
 public class Coin {
     private final String tag = "Coin";
     private String id;
@@ -15,6 +17,7 @@ public class Coin {
     //private String markercolor;
     private LatLng latLng;
     private Marker marker;
+    private String date;
     private MarkerViewOptions markerViewOptions;
 
     public Coin(String id, String value, String currency) {
@@ -37,9 +40,17 @@ public class Coin {
         this.latLng = a;
     }
 
+    public void setDate(String date) {
+        this.date=date;
+    }
+
     /////////////
     // Getters //
     /////////////
+
+    public String getDate() {
+        return date;
+    }
 
     public  double getGold() {
         double ans = Double.parseDouble(value);
@@ -88,8 +99,7 @@ public class Coin {
     }
 
     public String stringify() {
-        String ans = id + "/" + value + "/" + currency;
-        Log.d(tag, "[stringify] answer is " + ans + "============================");
+        String ans = id + "/" + value + "/" + currency + "/" + date;
         return ans;
     }
 

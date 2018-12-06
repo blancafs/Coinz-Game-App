@@ -8,6 +8,7 @@ import android.support.annotation.RequiresApi;
 import android.util.Log;
 
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -23,7 +24,6 @@ import java.util.Date;
 import java.util.Scanner;
 
 
-import static com.example.blanca.coinz2.MapActivity.conversions;
 import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 public class Helpers {
@@ -34,7 +34,11 @@ public class Helpers {
     // NEEDS IMPLEMENTATION
     public static String getTodaysURL() {
         // Set today's URL form Json repo and get json file
-        return "https://homepages.inf.ed.ac.uk/stg/coinz/2018/10/03/coinzmap.geojson";
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        Date date = new Date();
+        String sdate = dateFormat.format(date);
+        String ans = "https://homepages.inf.ed.ac.uk/stg/coinz/"+sdate+"/coinzmap.geojson";
+        return ans;
     }
 
     public static File getTodaysFile() {
@@ -150,7 +154,7 @@ public class Helpers {
         return answer;
     }
 
-    public static double goldTransform(String value, String currency) {
+    public static double goldTransform(String value, String currency, ArrayList<Double> conversions) {
         double val = Double.parseDouble(value);
         double goldconv = 0;
         switch (currency) {
@@ -165,5 +169,6 @@ public class Helpers {
         }
         return val*goldconv;
     }
+
 }
 

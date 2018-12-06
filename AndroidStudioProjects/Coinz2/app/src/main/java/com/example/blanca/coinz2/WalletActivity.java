@@ -13,36 +13,38 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-
-import static com.example.blanca.coinz2.MapActivity.player;
+import java.util.Map;
 
 public class WalletActivity extends AppCompatActivity implements View.OnClickListener {
 
     private final String tag = "WalletActivity";
     private CoinAdapterWallet coinAdapterWallet;
     private ListView listView;
-    private ArrayList<Coin> coins;
+    private ArrayList<Coin> wcoins;
 
-    private TextView textView;
+    static TextView textView;
     private Button mapbutton;
     private Button bankbutton;
+    private static Player player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wallet);
 
-        coins = new ArrayList<>(player.getWalletCoinz());
+        player = MapActivity.player;
+
+        wcoins = new ArrayList<>(player.getWalletCoinz());
 
         listView = findViewById(R.id.listview);
 
-        coinAdapterWallet = new CoinAdapterWallet(getApplicationContext(), coins);
+        coinAdapterWallet = new CoinAdapterWallet(getApplicationContext(), wcoins);
 
         listView.setAdapter(coinAdapterWallet);
 
-        // setting textview to equal number of coins currently in wallet
+        // setting textview to equal number of wcoins currently in wallet
         textView = findViewById(R.id.tvwalletno);
-        textView.setText(Integer.toString(coins.size()) + " coins");
+        textView.setText(Integer.toString(wcoins.size()) + " coins");
 
         // setting listeners on buttons on screen
         mapbutton = findViewById(R.id.btMap);

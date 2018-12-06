@@ -101,6 +101,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     toast.setView(toastLayout);
                     toast.show();
                     MySharedPreferences.setUserName(getApplicationContext(), email);
+                    MySharedPreferences.addMember(getApplicationContext());
                     startActivity(new Intent(RegisterActivity.this, MapActivity.class));
                 } else {
                     if (task.getException() instanceof FirebaseAuthUserCollisionException) {

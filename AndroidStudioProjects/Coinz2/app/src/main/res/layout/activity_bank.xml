@@ -245,7 +245,7 @@
                 android:fontFamily="serif-monospace"
                 android:gravity="left"
                 android:padding="10dp"
-                android:text="BANK"
+                android:text="WALLET"
                 android:textColor="@color/white"
                 android:textSize="22dp"
                 android:textStyle="bold"

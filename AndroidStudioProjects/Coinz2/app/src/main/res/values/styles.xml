@@ -6,4 +6,9 @@
         <item name="windowActionBar">false</item>
     </style>
 
+    <style name="MYSTYLE" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:itemBackground">@drawable/darkgradientbackground</item>
+    </style>
+
 </resources>

@@ -40,20 +40,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView tosignup;
 
     // Firebase variables //
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore firestore;
-    private DocumentReference firestoreUsers;
-    private static final String TAG = "UsersActivity";
-    private static final String COLLECTION_KEY = "users";
-    private static final String DOCUMENT_KEY = "users";
-    private static final String NAME_FIELD = "Name";
-    private static final String PASSWORD_FIELD = "Password";
+    public static FirebaseAuth mAuth;
+//    private FirebaseFirestore firestore;
+//    private DocumentReference firestoreUsers;
+//    private static final String TAG = "UsersActivity";
+//    private static final String COLLECTION_KEY = "users";
+//    private static final String DOCUMENT_KEY = "users";
+//    private static final String NAME_FIELD = "Name";
+//    private static final String PASSWORD_FIELD = "Password";
 
-    //Map Download variables //
-    private String downloadDate = ""; // Format YYYY/MM/DD
-    private final String preferencesFile = "MyPrefsFile"; // for storing preferences
-    SharedPreferences settings;
-    SharedPreferences.Editor editor;
 
     ////////////////
     // On methods //
@@ -65,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main2);
         Log.d(tag, "onCreate [MainActivity just started running ==========================================================================================================]");
 
+        // Firebase instance
         mAuth = FirebaseAuth.getInstance();
 
         // Assigning Ids from Login page to vars //
@@ -89,15 +85,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onStop() {
         super.onStop();
-        Log.d(tag, "[onStop] String lastDownloadDate of " + downloadDate);
-
-        //All objects are from android.context.Context
-        SharedPreferences settings = getSharedPreferences(preferencesFile, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString("lastDownloadDate", downloadDate);
-
-        //Apply the edits!
-        editor.apply();
     }
 
     @Override
@@ -174,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     toast.setView(toastLayout);
                     toast.show();
                     MySharedPreferences.setUserName(getApplicationContext(),email);
+                    MySharedPreferences.addMember(getApplicationContext());
                     startActivity(new Intent(MainActivity.this, MapActivity.class));
                 } else {
                     Log.d(tag," userLogin onComplete[sign up unsuccessfull]");

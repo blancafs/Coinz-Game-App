@@ -1,11 +1,8 @@
 package com.example.blanca.coinz2;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 
-import java.lang.reflect.Array;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,6 +19,7 @@ public class Player {
     private ArrayList<Coin> walletCoinz;
     private ArrayList<Coin> bankedCoinz;
     private ArrayList<Coin> specialCoinz;
+    private ArrayList<Coin> sentCoinz;
     private double totalDistance;
     private int totalSent;
     private int totalCoins;
@@ -37,6 +35,7 @@ public class Player {
         this.gold = MySharedPreferences.getGoldTotal(context, email);
         this.friends = MySharedPreferences.getFriends(context, email);
         this.totalDistance = MySharedPreferences.getTotalDistance(context, email);
+        this.sentCoinz = MySharedPreferences.getSentCoins(context, email);
         updateCommunityLevel();
         updateLevel();
         refreshWallet();
@@ -49,6 +48,15 @@ public class Player {
     // you go up every ten coins
     private void updateLevel() {
         int l = Math.floorDiv(totalCoins,15);
+        double max = l*0.5*45;
+        double min = l*0.5*25;
+        if (!(l==level)) {
+            // find number between max and min, and divide by 10 to cancel multiplication in addbonusgold method
+            double x = (Math.random() * ((max-min) + 1)) + min * 0.1;
+            Coin a = new Coin("a",String.valueOf(x),"GOLD");
+            // will add the value directly, ignoring currency
+            addBonusGold(a);
+        }
         this.level = l;
     }
 
@@ -126,15 +134,15 @@ public class Player {
             MySharedPreferences.removeSpecialCoin(getApplicationContext(), coin);
         }
         walletCoinz.remove(coin);
-        MySharedPreferences.add2SentCoins(getApplicationContext(), coin, where);
+        MySharedPreferences.sendCoin(getApplicationContext(), coin, email);
+        MySharedPreferences.add2SentTotal(getApplicationContext(), coin, where);
     }
 
     public Boolean addToSpecialCoins(Coin coin) {
-        if (specialCoinz.size() < level && !(isInSpecial(coin))) {
+        if (specialCoinz.size() < (level+communityLevel) && !(isInSpecial(coin))) {
             walletCoinz.remove(coin);
             specialCoinz.add(coin);
             MySharedPreferences.addSpecialCoin(getApplicationContext(), coin);
-            MySharedPreferences.sendCoin(getApplicationContext(), coin, email);
             return true;
         } else {
             return false;
@@ -208,6 +216,15 @@ public class Player {
 
     public boolean isInSpecial(Coin coin) {
         for (Coin a: specialCoinz) {
+            if (a.isEqualto(coin)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isInSent(Coin coin) {
+        for (Coin a: sentCoinz) {
             if (a.isEqualto(coin)) {
                 return true;
             }

@@ -185,11 +185,6 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
     private void setUpSwitch(){
         Boolean mode = player.getCurrentMode();
         modeSwitch.setChecked(mode);
-        modeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                player.setCurrentMode(b);
-            }
-        });
+        modeSwitch.setOnCheckedChangeListener((compoundButton, b) -> player.setCurrentMode(b));
     }
 }

@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -36,6 +35,7 @@ public class CoinAdapterWallet extends BaseAdapter{
         goldconversion = new ArrayList<>();
         ArrayList<Double> convs = MapActivity.conversions;
 
+
         for (Coin a: coins) {
             values.add(a.getValue());
             currs.add(a.getCurrency());
@@ -46,7 +46,9 @@ public class CoinAdapterWallet extends BaseAdapter{
         this.context=context;
         this.coins=coins;
 
-        walletCoinNumber = WalletActivity.textView;
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View v = inflater.inflate(R.layout.activity_wallet, null, true);
+        walletCoinNumber = v.findViewById(R.id.tvwalletno);
     }
 
     @Override

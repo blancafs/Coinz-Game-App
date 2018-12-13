@@ -18,6 +18,7 @@ class MySharedPreferences {
     private static final String BANKED_COINS = "banked_coins";
     private static final String WALLET_COINS = "wallet_coins";
     private static final String TOTAL_COINS = "total_coins";
+    private static final String SENT_TOTAL = "sent_total";
     private static final String SENT_COINS = "sent_coins";
     private static final String SPECIAL_COINS = "special_coins";
     private static final String GOLD = "gold";
@@ -236,7 +237,8 @@ class MySharedPreferences {
                     String ans = email;
                     double level = Integer.parseInt(s.split(":")[1]);
                     // add the gold value of coin sent to their gold total
-                    level += coin.getGold();
+                    level = level + coin.getGold();
+                    Log.d(tag, "[sendCoin] final gold value is " + level + " ============");
                     ans = ans + ":" + level;
                     coins[i] = ans;
                 } else {
@@ -248,6 +250,7 @@ class MySharedPreferences {
         } else { // if it is empty
             answer = email + ":" + String.valueOf(1);
         }
+        addToSentCoins(context, coin);
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
         editor.putString(GOLD, answer);
         editor.apply();
@@ -318,9 +321,9 @@ class MySharedPreferences {
         Log.d(tag, "[add2CoinTotal]: final coin string " + answer + " saved in preferences");
     }
 
-    static void add2SentCoins(Context context, Coin coin,int where) { // where is 1 if wallet, 0 if special coins
+    static void add2SentTotal(Context context, Coin coin, int where) { // where is 1 if wallet, 0 if special coins
         String email = getUserName(context);
-        String sentcoins = getSharedPreferences(context).getString(SENT_COINS, "0");
+        String sentcoins = getSharedPreferences(context).getString(SENT_TOTAL, "0");
         String answer = "";
         // if string not empty
         if (!(sentcoins.length() < 2)) {
@@ -329,7 +332,7 @@ class MySharedPreferences {
                 // when we get to string holding level for that player
                 String s = coins[i];
                 if (s.contains(email)) {
-                    Log.d(tag, "[add2SentCoins] string s in sentcoins has occurence of username ! ===================");
+                    Log.d(tag, "[add2SentTotal] string s in sentcoins has occurence of username ! ===================");
                     String ans = email;
                     Integer level = Integer.parseInt(s.split(":")[1]);
                     level += 1;
@@ -348,9 +351,41 @@ class MySharedPreferences {
             removeWalletCoin(context,coin);
         }
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-        editor.putString(SENT_COINS, answer);
+        editor.putString(SENT_TOTAL, answer);
         editor.apply();
-        Log.d(tag, "[add2SentCoins]: final coin string " + answer + " saved in preferences");
+        Log.d(tag, "[add2SentTotal]: final coin string " + answer + " saved in preferences");
+    }
+
+    static void addToSentCoins(Context context, Coin coin) {
+        String email = getUserName(context);
+        String specialcoins = getSharedPreferences(context).getString(SENT_COINS, "0");
+        String result = email + ":" + coin.stringify(); // format of coin stringify id + "-" + value + "-" + currency;
+        int counter = 0;
+
+        if (!(specialcoins.length()<2)) {
+            Log.d(tag, "[addToSentCoins] sent coins in preferences not empty! ===================");
+            // as not empty, we split the preference string
+            String[] coins = specialcoins.split(","); // so now strings are email:coin string
+            for (String s:coins) {
+                if (s.contains(coin.getId()) && s.contains(email)) {
+                    counter++;
+                    // if coin already in saved string, counter will not be 0
+                }
+            }
+            if (counter==0) {
+                // if not already in saved preferences for that user, add formatted string to preferences string
+                result = specialcoins + "," + result;
+            } else {
+                // if that coin is already saved for that user, keep string as is
+                result = specialcoins;
+                Log.d(tag, "[addToSentCoins] coin was already in saved sent coins string in preferences =========");
+            }
+        }
+        removeWalletCoin(context,coin);
+        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+        editor.putString(SENT_COINS, result);
+        editor.apply();
+        Log.d(tag, "[addToSentCoins]: coin string " + result + " saved in preferences");
     }
 
     static void addBankCoin(Context context, Coin coin, int where) {
@@ -553,7 +588,7 @@ class MySharedPreferences {
         String modes = getSharedPreferences(context).getString(CURR_MODE, "0");
         if (modes.length()<2) {
             Log.d(tag, "[getCurrentMode]: returning false");
-            return Boolean.FALSE;
+            return false;
         }
         String[] mode = modes.split(","); // as we have formatted the string as "email:mode", "email:mode" ...
         for (String s:mode) {
@@ -564,7 +599,7 @@ class MySharedPreferences {
             }
         }
         Log.d(tag, "[getCurrentMode]: returning false");
-        return Boolean.FALSE;
+        return false;
     }
 
     static String getPlayerImage(Context context, String email) {
@@ -729,8 +764,40 @@ class MySharedPreferences {
         return finalcoins;
     }
 
+    static ArrayList<Coin> getSentCoins(Context context, String email) {
+        String coins = getSharedPreferences(context).getString(SENT_COINS, "0");
+        ArrayList<Coin> empty = new ArrayList<Coin>();
+        if (coins.length()<2) {
+            Log.d(tag, "[getStoredSpecials] no coins in sent coins string in preferences.");
+            return empty;
+        }
+        // make string array with all contents of walletcoins
+        String[] specialcoins = coins.split(",");
+        ArrayList<Coin> finalcoins = new ArrayList<Coin>();
+
+        // to ensure we only downloads today's
+        Date date = new Date();
+        SimpleDateFormat dformat = new SimpleDateFormat("dd.MM.yyyy");
+        String today = dformat.format(date);
+
+        for (String s:specialcoins) {
+            // check for given email, if present keep string and get coin, then add it to arraylist
+            if (s.contains(email) && s.contains(today)) {
+                String coinstring = s.split(":")[1];
+                String[] features = coinstring.split("/");
+                // coin string format email:id-value-currency
+                Coin walcoin = new Coin(features[0], features[1], features[2]); // Coin(String id, String value, String currency)
+                Log.d(tag, "[getSentCoins] walcoin created, walcoin stringify " + walcoin.stringify() + " =========================");
+                walcoin.setDate(features[3]);
+                finalcoins.add(walcoin);
+                Log.d(tag, "[getSentCoins] coin " + features[0] + "retrieved from sent coin memory, added to sent coins arraylist.");
+            }
+        }
+        return finalcoins;
+    }
+
     static int getTotalSentCoins(Context context, String email) {
-        String level = getSharedPreferences(context).getString(SENT_COINS, "0");
+        String level = getSharedPreferences(context).getString(SENT_TOTAL, "0");
         if (level.length()< 2) {
             return 0;
         }

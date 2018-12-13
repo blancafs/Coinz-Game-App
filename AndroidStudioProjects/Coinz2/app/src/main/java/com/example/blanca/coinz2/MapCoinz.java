@@ -66,12 +66,26 @@ class MapCoinz {
             MarkerViewOptions markerViewOptions = new MarkerViewOptions().title(title).snippet(snippet).icon(icon).position(latLng);
             coin.setMarkerViewOptions(markerViewOptions);
 
-            if (!player.isInBank(coin) && !player.isInWallet(coin) && !player.isInSpecial(coin)) {
-                onmapcoins.add(coin);
-                mapboxMap.addMarker(markerViewOptions);
-                Log.d(tag, "[addMarkers] coin added to mapcoins as not in wallet or bank, id " + coin.getId() + " ");
+            if (!player.isInBank(coin) && !player.isInWallet(coin) && !player.isInSpecial(coin) && !player.isInSent(coin)) {
+                if (player.getCurrentMode()) {
+                    if (isChallengeOn() && coin.isDisabled()) { // if challenge on, every disabled coin has disabled icon
+                        // Remake marker
+                        MarkerViewOptions marker = makeMarker(coin, Helpers.getDisabledIcon());
+                        coin.setMarkerViewOptions(marker);
+                        mapboxMap.addMarker(marker);
+                        Log.d(tag, "[addMarkers] adding new disabled marker to map as coinsabled");
+                    } else { //  if challenge is on but coin is not disabled, add normally
+                        onmapcoins.add(coin);
+                        mapboxMap.addMarker(markerViewOptions);
+                        Log.d(tag, "[addMarkers] challenge on but coin not disabled so added " + coin.getId());
+                    }
+                } else { // if the mode is not hard, simply add marker
+                    onmapcoins.add(coin);
+                    mapboxMap.addMarker(markerViewOptions);
+                    Log.d(tag, "[addMarkers] coin added to mapcoins as not in wallet or bank, id " + coin.getId() + " ");
+                }
             }
-            Log.d(tag, "[addMarkers] Marker created successfully ===========================");
+            Log.d(tag, "[addMarkers] done ===========================");
         }
     }
 
@@ -113,7 +127,7 @@ class MapCoinz {
                 }
                 // If no active challenge but difficult mode
                 else if(difficultMode){
-                    // Give coin to player
+                    // Give coin to player, begin new challenge
                     deleteCoin(mapboxMap, a);
                     toremove.add(a);
                     player.addToWallet(a);
@@ -126,8 +140,8 @@ class MapCoinz {
                     Log.d(tag, "[updateCoins]: Difficulty mode was on and there was no active challenge so coin just applied a new active challenge");
                     break;
                 }
-                // If nothing is active then just give it to player
-                else {
+                // If nothing is active, aka in standard mode, then just give it to player
+                else if (!difficultMode){
                     deleteCoin(mapboxMap, a);
                     toremove.add(a);
                     player.addToWallet(a);
@@ -199,9 +213,8 @@ class MapCoinz {
     private MarkerViewOptions makeMarker(Coin coin, Icon dicon) {
         String snippet = coin.getValue();
         String title = coin.getCurrency();
-        Icon icon = dicon;
         LatLng latLng = coin.getLatLng();
-        return new MarkerViewOptions().title(title).snippet(snippet).icon(icon).position(latLng);
+        return new MarkerViewOptions().title(title).snippet(snippet).icon(dicon).position(latLng);
 
     }
 

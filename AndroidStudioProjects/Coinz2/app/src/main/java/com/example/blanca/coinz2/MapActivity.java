@@ -1,5 +1,6 @@
 package com.example.blanca.coinz2;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.location.Location;
@@ -57,16 +58,11 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     private MapView mapView;
     private MapboxMap map;
 
-    // Location Variables ===============//
-    private PermissionsManager permissionsManager;
     private LocationEngine locationEngine;
-    private LocationLayerPlugin locationLayerPlugin;
     private Location originLocation;
 
     // Data Variables ===================//
     private String todayURL;
-    private final String dataFile = "";
-    private final String preferencesFile = "MyPrefsFile"; // for storing preferences
     private String coinData = "";
 
     // Public Access FeatureCollection ==//
@@ -77,17 +73,12 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private Toolbar toolbar;
+    @SuppressLint("StaticFieldLeak")
     static TextView name;
 
     // Functional Variables =============//
     public static Player player;
-    static TextView noSteps;
-    static TextView noCoinsPi;
-    static TextView noCoinsSen;
-    static TextView plalevel;
-    static TextView comlevel;
-    static TextView gold;
-    static TextView chosen;
+
 
     ////////////////
     // On methods //
@@ -108,20 +99,9 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         mapView.getMapAsync(this);
 
         // Setting up toolbar
-        toolbar = findViewById(R.id.nav_actionbar);
+        toolbar = findViewById(R.id.map_bar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        // setting textview variables so no crash
-//        name = findViewById(R.id.tvMyAccount);
-//        noSteps = findViewById(R.id.tvNoSteps);
-//        noCoinsPi = findViewById(R.id.tvNoCoinsPicked);
-//        noCoinsSen = findViewById(R.id.tvNoCoinsSent);
-//        plalevel = findViewById(R.id.tvPlayerLevel);
-//        comlevel = findViewById(R.id.tvComLevel);
-//        gold = findViewById(R.id.tvGold);
-//        chosen = findViewById(R.id.tvChosenCoin);
-//        chosen.setText("");
 
         // Setting up navigation bar
         drawerLayout = findViewById(R.id.drawerLayout);
@@ -139,19 +119,16 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
 
        // Setting up Currencies
-        String[] curStrings = {"SHIL", "DOLR", "QUID", "PENY"};
+        Log.d(tag, coinData);
         conversions = Helpers.getCurrencies(coinData);
 
         // Set the global  feature collection ===//
         mapCoinz = new MapCoinz(FeatureCollection.fromJson(coinData));
         Log.d(tag, "[onStart] mapCoinz feature collection created");
 
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(MapboxMap mapboxMap) {
-                //  Adding coins to map using external class MapCoinz ==============//
-                mapCoinz.addMarkers(map);
-            }
+        mapView.getMapAsync(mapboxMap -> {
+            //  Adding coins to map using external class MapCoinz ==============//
+            mapCoinz.addMarkers(map);
         });
     }
 
@@ -232,6 +209,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 return true;
             case R.id.nav_logout:
                 Log.d(tag,"[onMenuItemClick] logout clicked in nav menu =================================================");
+                MySharedPreferences.resetUserName(getApplicationContext());
                 startActivity(new Intent(this, MainActivity.class));
                 return true;
         }
@@ -270,7 +248,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
 
         // Download the day's coins
         DownloadFileTask myTask = new DownloadFileTask();
-        String result = null;
+        String result;
 
         // Send download request and use answer as coin data
         try {
@@ -348,12 +326,15 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
         if (location == null) {
             Log.d(tag, "[onLocationChanged] location is null ==================================================");
         } else {
+            if (!(originLocation==null)) {
+                LatLng latLng = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
+                double dist = Helpers.dist(location, latLng);
+                player.addToTotalDistance(dist);
+                Log.d(tag, "[onLocationChanged] " + dist + " added to total distance dist");
+            }
             originLocation = location;
             setCameraPosition(location);
         }
-        Log.d(tag, "[onLocationChanged] location has changed, updating coinz=========================");
-        //mapCoinz.updateCoins(map, location);
-
         mapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
@@ -362,6 +343,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
                 mapCoinz.updateCoins(mapboxMap, location);
             }
         });
+        player.logOutput();
     }
 
     @Override
@@ -400,7 +382,8 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             initializeLocationLayer();
         } else {
             Log.d(tag, "[enableLocation] Permissions are not granted) ==================================================");
-            permissionsManager = new PermissionsManager(this);
+            // Location Variables ===============//
+            PermissionsManager permissionsManager = new PermissionsManager(this);
             permissionsManager.requestLocationPermissions(this);
         }
     }
@@ -429,7 +412,7 @@ public class MapActivity extends AppCompatActivity implements NavigationView.OnN
             if (map == null) {
                 Log.d(tag, "[initializeLocationLayer] map is null ==================================================");
             } else {
-                locationLayerPlugin = new LocationLayerPlugin(mapView, map, locationEngine);
+                LocationLayerPlugin locationLayerPlugin = new LocationLayerPlugin(mapView, map, locationEngine);
                 locationLayerPlugin.setLocationLayerEnabled(true);
                 locationLayerPlugin.setCameraMode(CameraMode.TRACKING);
                 locationLayerPlugin.setRenderMode(RenderMode.NORMAL);

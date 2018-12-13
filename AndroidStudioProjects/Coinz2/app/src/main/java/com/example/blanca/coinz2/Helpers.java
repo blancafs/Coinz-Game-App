@@ -113,6 +113,11 @@ public class Helpers {
         return iconFactory.fromResource(R.drawable.mapbox_info_icon_default);
     }
 
+    public static Icon getDisabledIcon() {
+        IconFactory iconFactory = IconFactory.getInstance(getApplicationContext());
+        return iconFactory.fromResource(R.mipmap.disabled);
+    }
+
     public static double dist(Location location, LatLng latlng) {
         double lat1 = location.getLatitude();
         double lng1 = location.getLongitude();
@@ -134,6 +139,8 @@ public class Helpers {
         ArrayList<Double> answer = new ArrayList<>(); // format is SHIL DOLR QUID PENY
 
         String[] s = coindata.split(","); // format is SHIL DOLR QUID PENY
+
+        Log.d(tag, s[0]);
         String shilcur = s[4].trim().split(":")[2].trim(); // s[4] = "rates": {"SHIL": cur, so we take the third string when split by :
         Log.d(tag, "[getCurrencies] shilcur is " +shilcur);
         answer.add(Double.parseDouble(shilcur));

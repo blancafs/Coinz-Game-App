@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private final String tag = "RegisterActivity";
     private EditText etEmail;
     private EditText etPassword;
     private Button login;
@@ -101,7 +103,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     toast.setView(toastLayout);
                     toast.show();
                     MySharedPreferences.setUserName(getApplicationContext(), email);
-                    MySharedPreferences.addMember(getApplicationContext());
+                    MySharedPreferences.addMember(getApplicationContext(), email);
+                    MySharedPreferences.addMember(getApplicationContext(), "blanca@ed.ac.uk");
+                    MySharedPreferences.addMember(getApplicationContext(), "thursday@ed.ac.uk");
+                    Log.d(tag,"[onComplete] register activity added actual member + examples");
                     startActivity(new Intent(RegisterActivity.this, MapActivity.class));
                 } else {
                     if (task.getException() instanceof FirebaseAuthUserCollisionException) {

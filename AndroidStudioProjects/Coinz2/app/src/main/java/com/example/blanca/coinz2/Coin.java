@@ -1,48 +1,46 @@
 package com.example.blanca.coinz2;
-
-import android.util.Log;
-
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerViewOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
-import java.util.Date;
 
 public class Coin {
-    private final String tag = "Coin";
     private String id;
     private String value;
     private String currency;
-    //private String markersymbol;
-    //private String markercolor;
     private LatLng latLng;
     private Marker marker;
     private String date;
     private MarkerViewOptions markerViewOptions;
+    private Boolean disabled;
 
     public Coin(String id, String value, String currency) {
         this.id = id;
         this.value = value;
         this.currency = currency;
-        //this.markersymbol = markersymbol;
-        //this.markercolor = markercolor;
+        this.disabled = false;
     }
 
     /////////////
     // Setters //
     /////////////
 
-    public void setMarkerViewOptions(MarkerViewOptions markerViewOptions) {
+    void setMarkerViewOptions(MarkerViewOptions markerViewOptions) {
         this.markerViewOptions = markerViewOptions;
     }
 
-    public void setLocation(LatLng a) {
+    void setLocation(LatLng a) {
         this.latLng = a;
     }
 
     public void setDate(String date) {
         this.date=date;
     }
+
+    void setAsDisabled(Boolean disabled){
+        this.disabled = disabled;
+    }
+
 
     /////////////
     // Getters //
@@ -76,16 +74,20 @@ public class Coin {
         return value;
     }
 
-    public String getCurrency() {
+    String getCurrency() {
         return currency;
     }
 
-    public LatLng getLatLng() {
+    LatLng getLatLng() {
         return latLng;
     }
 
-    public MarkerViewOptions getMarkerViewOptions() {
+    MarkerViewOptions getMarkerViewOptions() {
         return markerViewOptions;
+    }
+
+    Boolean isDisabled(){
+        return disabled;
     }
 
     ///////////////
@@ -98,12 +100,12 @@ public class Coin {
         return ans;
     }
 
-    public String stringify() {
+    String stringify() {
         String ans = id + "/" + value + "/" + currency + "/" + date;
         return ans;
     }
 
-    public Boolean isEqualto(Coin coin) {
+    Boolean isEqualto(Coin coin) {
         return (this.id.equals(coin.getId()));
     }
 }

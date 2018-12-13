@@ -22,7 +22,7 @@ public class Player {
     private ArrayList<Coin> walletCoinz;
     private ArrayList<Coin> bankedCoinz;
     private ArrayList<Coin> specialCoinz;
-    private int totalSteps;
+    private double totalDistance;
     private int totalSent;
     private int totalCoins;
     private double gold;
@@ -36,6 +36,7 @@ public class Player {
         this.specialCoinz = MySharedPreferences.getStoredSpecials(context, email);
         this.gold = MySharedPreferences.getGoldTotal(context, email);
         this.friends = MySharedPreferences.getFriends(context, email);
+        this.totalDistance = MySharedPreferences.getTotalDistance(context, email);
         updateCommunityLevel();
         updateLevel();
         refreshWallet();
@@ -82,6 +83,7 @@ public class Player {
             walletCoinz.add(coin);
             totalCoins++;
             updateLevel();
+            Log.d(tag, "[addToWallet] walletcoinz size is : "+walletCoinz.size() + "\ntotal coins is : "+totalCoins);
             MySharedPreferences.addWalletCoin(getApplicationContext(), coin);
         } else {
             Log.d(tag, "[addToWallet] tried to add coin to wallet twice! ==========================");
@@ -101,10 +103,18 @@ public class Player {
             if (isInSpecial(coin)) {
                 removeCoinFromCoinz(2,coin);
             }
+            walletCoinz.remove(coin);
             bankedCoinz.add(coin);
             MySharedPreferences.addBankCoin(getApplicationContext(), coin, where);
             return true;
         }
+    }
+
+    // Adds the difficulty bonus gold to players bank
+    public void addBonusGold(Coin c){
+        double bonus = Double.parseDouble(c.getValue()) * 10.0;
+        gold += bonus;
+        MySharedPreferences.setGoldDirectly(getApplicationContext(), gold);
     }
 
     public void addToSentCoins(Coin coin, int where) { // where is 0 for wallet, 2 for special coins
@@ -115,6 +125,7 @@ public class Player {
             removeCoinFromCoinz(where, coin); // rem from special coins
             MySharedPreferences.removeSpecialCoin(getApplicationContext(), coin);
         }
+        walletCoinz.remove(coin);
         MySharedPreferences.add2SentCoins(getApplicationContext(), coin, where);
     }
 
@@ -123,10 +134,16 @@ public class Player {
             walletCoinz.remove(coin);
             specialCoinz.add(coin);
             MySharedPreferences.addSpecialCoin(getApplicationContext(), coin);
+            MySharedPreferences.sendCoin(getApplicationContext(), coin, email);
             return true;
         } else {
             return false;
         }
+    }
+
+    public void addToTotalDistance(double distance) {
+        double nwd = distance + totalDistance;
+        setTotalDistance(nwd);
     }
 
     public void removeCoinFromCoinz(int which, Coin coin) {
@@ -165,7 +182,6 @@ public class Player {
         if (friends.contains(email)) {
             removeCoinFromCoinz(where,coin);
             addToSentCoins(coin,where);
-
         }
     }
 
@@ -200,6 +216,19 @@ public class Player {
     }
 
 
+    // PUBLIC SETTERS //
+
+    // Sets current play mode in user preferences
+    public void setCurrentMode(boolean b) {
+        MySharedPreferences.setCurrMode(getApplicationContext(), b);
+    }
+
+    public void setTotalDistance(double b){
+        this.totalDistance = b;
+        MySharedPreferences.setTotalDistance(getApplicationContext(), b);
+    }
+
+
     // PUBLIC GETTERS //
 
     public int getLevel() {
@@ -229,8 +258,28 @@ public class Player {
 
     public int getTotalCoins() { return totalCoins; }
 
+    public int getTotalSent() {
+        return totalSent;
+    }
+
+    public double getTotalDistance() {
+        return totalDistance;
+    }
+
     public ArrayList<String> getFriends() {
         return friends;
+    }
+
+    // Returns the current difficulty mode
+    public Boolean getCurrentMode() {
+        return MySharedPreferences.getCurrentMode(getApplicationContext(), email);
+    }
+
+    // TEST METHODS //
+    public void logOutput(){
+        Log.d(tag, "PLAYER LOG:\n"
+        + "     Current playing mode is: "+ getCurrentMode() +"\n"
+        + "     Gold is: " + getGold());
     }
 
 }

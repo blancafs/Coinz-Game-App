@@ -1,5 +1,6 @@
 package com.example.blanca.coinz2;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -13,15 +14,7 @@ import android.widget.BaseAdapter;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.common.io.Resources;
-
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-
-import static android.support.v4.content.ContextCompat.startActivity;
-import static com.example.blanca.coinz2.MapActivity.player;
 import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 public class CoinAdapterBank extends BaseAdapter{
@@ -70,7 +63,7 @@ public class CoinAdapterBank extends BaseAdapter{
         v.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                PopupMenu popupMenu = new PopupMenu(wrapper, view, Gravity.RIGHT);
+                @SuppressLint("RtlHardcoded") PopupMenu popupMenu = new PopupMenu(wrapper, view, Gravity.RIGHT);
                 // inflating popup
                 popupMenu.getMenuInflater().inflate(R.menu.specialcoinmenu, popupMenu.getMenu());
                 // registering popup with onmenuitemclicklistener
@@ -81,9 +74,10 @@ public class CoinAdapterBank extends BaseAdapter{
                             case R.id.nav_spaddtobank:
                                 // addBankCoin checks no more than 25 done at a time
                                 Boolean answer = player.addToBank(coins.get(position), 2);
-                                if (answer==false) {
+                                if (!answer) {
                                     // print toast saying too many banked coins
                                     LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE );
+                                    assert inflater != null;
                                     View toastLayout = inflater.inflate(R.layout.toomanyinbanktoast, v.findViewById(R.id.llCustom));
                                     Toast toast = new Toast(getApplicationContext());
                                     toast.setDuration(Toast.LENGTH_SHORT);

@@ -2,14 +2,12 @@ package com.example.blanca.coinz2;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -19,12 +17,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import org.w3c.dom.Text;
-
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -32,8 +24,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Variables ///
     ////////////////
 
-    // Declaring private variables from first screen //
     private static final String tag = "MainActivity.java";
+
+    // Declaring private variables from first screen //
     private EditText name1;
     private EditText password1;
     private Button login1;
@@ -41,14 +34,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     // Firebase variables //
     public static FirebaseAuth mAuth;
-//    private FirebaseFirestore firestore;
-//    private DocumentReference firestoreUsers;
-//    private static final String TAG = "UsersActivity";
-//    private static final String COLLECTION_KEY = "users";
-//    private static final String DOCUMENT_KEY = "users";
-//    private static final String NAME_FIELD = "Name";
-//    private static final String PASSWORD_FIELD = "Password";
-
 
     ////////////////
     // On methods //
@@ -60,6 +45,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main2);
         Log.d(tag, "onCreate [MainActivity just started running ==========================================================================================================]");
 
+        if (!(MySharedPreferences.getUserName(getApplicationContext())==null)) {
+            startActivity(new Intent(this, MapActivity.class));
+        }
         // Firebase instance
         mAuth = FirebaseAuth.getInstance();
 
@@ -76,12 +64,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user signed in and update UI accordingly //
-        // String strIWAntToGet = MySharedPreferences.getPrefUserName(context);
-
     }
-
     // On stop called even if our app is killed by the operating system
+
     @Override
     public void onStop() {
         super.onStop();
@@ -161,7 +146,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     toast.setView(toastLayout);
                     toast.show();
                     MySharedPreferences.setUserName(getApplicationContext(),email);
-                    MySharedPreferences.addMember(getApplicationContext());
+                    MySharedPreferences.addMember(getApplicationContext(), email);
+                    MySharedPreferences.addMember(getApplicationContext(), "blanca@ed.ac.uk");
+                    MySharedPreferences.addMember(getApplicationContext(), "thursday@ed.ac.uk");
+                    Log.d(tag,"[onComplete] main activity added actual member + examples");
                     startActivity(new Intent(MainActivity.this, MapActivity.class));
                 } else {
                     Log.d(tag," userLogin onComplete[sign up unsuccessfull]");

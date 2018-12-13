@@ -6,25 +6,26 @@ import android.util.Log;
 
 import com.google.common.base.Joiner;
 
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class MySharedPreferences {
+class MySharedPreferences {
     private static final String tag = "MySharedPreference";
-    static final String CURR_USER_NAME = "username";
-    static final String CURR_MODE = "current_mode";
-    static final String BANKED_COINS = "banked_coins";
-    static final String WALLET_COINS = "wallet_coins";
-    static final String TOTAL_COINS = "total_coins";
-    static final String SENT_COINS = "sent_coins";
-    static final String SPECIAL_COINS = "special_coins";
-    static final String GOLD = "gold";
-    static final String TOTAL_STEPS = "total_steps";
-    static final String MEMBERS = "members";
+    private static final String CURR_USER_NAME = "username";
+    private static final String CURR_MODE = "current_mode";
+    private static final String CURR_CHALLENGE = "current_challenge";
+    private static final String BANKED_COINS = "banked_coins";
+    private static final String WALLET_COINS = "wallet_coins";
+    private static final String TOTAL_COINS = "total_coins";
+    private static final String SENT_COINS = "sent_coins";
+    private static final String SPECIAL_COINS = "special_coins";
+    private static final String GOLD = "gold";
+    private static final String SAVED_IMAGES = "saved_images";
+    private static final String TOTAL_DISTANCE = "total_distance";
+    private static final String MEMBERS = "members";
 
-    static SharedPreferences getSharedPreferences(Context context) {
+    private static SharedPreferences getSharedPreferences(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
 
@@ -33,37 +34,44 @@ public class MySharedPreferences {
     /////////////
 
     // Sets current username ========================= //
-    public static void setUserName(Context context, String email) {
+    static void setUserName(Context context, String email) {
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
         editor.putString(CURR_USER_NAME, email);
         editor.apply();
         Log.d(tag, "[setUserName]: current username " + email + " saved in MyPreferences.");
     }
 
+    static void resetUserName(Context context) {
+        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+        editor.putString(CURR_USER_NAME, "");
+        editor.apply();
+        Log.d(tag, "[resetUserName]: current username reset in MyPreferences.");
+    }
+
     // Sets current 'mode' - whether hard (True) or not (False) ====== //
-    public static void setCurrMode(Context context, Boolean mode) {
+    static void setCurrMode(Context context, Boolean mode) {
         String email = getUserName(context);
         String playermodes = getSharedPreferences(context).getString(CURR_MODE, "0");
         // Formatting how the string will be saved in preferences //
-        String result = email + ":" + mode.toString(); // format email:level, email:level ...
+        String result = email + ":" + String.valueOf(mode); // format email:level, email:level ...
         String answer = "";
 
         // if not empty, simply add to existing string, unless username already there with a value in which case we replace the value and the substring
         if (!(playermodes.length()<2)) {
             String[] levels = playermodes.split(",");
-            String[] diflevels = levels.clone();
+            String[] finals = levels.clone();
             for (int i=0; i<levels.length; i++) {
                 String s = levels[i];
                 // if already a string with that username, replace with string with new level
                 if (s.contains(email)) {
                     Log.d(tag, "[setCurrMode] string s in playermodes has occurence of username ! ===================");
-                    diflevels[i] = result;
+                    finals[i] = result;
                     Log.d(tag, "[setCurrMode] string res " + result + " replaced old string===================");
                 } else {
-                    diflevels[i] = s;
+                    finals[i] = s;
                 }
             }
-            answer = Joiner.on(",").join(diflevels);
+            answer = Joiner.on(",").join(finals);
             Log.d(tag, "[setCurrMode]: current playermodes not empty, " + answer + " added to saved string.");
         } else {
             answer = result;
@@ -74,48 +82,135 @@ public class MySharedPreferences {
         Log.d(tag, "[setCurrMode]: current playermodes " + answer + " saved in preferences=============");
     }
 
-//    // Set current level ====================================//
-//    public static void setCurrLevel(Context context, Integer level) {
-//        String email = getUserName(context);
-//        String playerlevels = getSharedPreferences(context).getString(CURR_LEVEL, "0");
-//        // Formatting how the string will be saved in preferences //
-//        String result = email + ":" + level.toString(); // format email:level, email:level ...
-//        String answer = "";
-//
-//        // if not empty, simply add to existing string, unless username already there with a value in which case we replace the value and the substring
-//        if (!(playerlevels.length()<2)) {
-//            String[] levels = playerlevels.split(",");
-//            String[] diflevels = levels;
-//            for (Integer i=0; i<levels.length; i++) {
-//                String s = levels[i];
-//                // if already a string with that username, replace with string with new level
-//                if (s.contains(email)) {
-//                    Log.d(tag, "[setCurrLevel] string s in playerlevels has occurence of username ! ===================");
-//                    diflevels[i] = result;
-//                    Log.d(tag, "[setCurrLevel] string res " + result + " replaced old string===================");
-//                } else {
-//                    diflevels[i] = s;
-//                }
-//            }
-//            answer = Joiner.on(",").join(diflevels);
-//            Log.d(tag, "[setCurrLevel]: current playerlevels not empty, " + answer + " added to saved string.");
-//        } else {
-//            answer = result;
-//        }
-//        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
-//        editor.putString(CURR_LEVEL, answer);
-//        editor.apply();
-//        Log.d(tag, "[setCurrLevel]: current player levels " + answer + " saved in preferences");
-//    }
+    static void setCurrChallenge(Context context, String challenge){
+        String email = getUserName(context);
 
-    public static void addMember(Context context) {
-        String members = getSharedPreferences(context).getString(MEMBERS, "0");
-        String user = getSharedPreferences(context).getString(CURR_USER_NAME, "0");
+        // Challenge contains
+        String currChallenge = getSharedPreferences(context).getString(CURR_CHALLENGE, "");
+        String result = email + ":" + challenge; // format email:lat/long/time
+        String answer;
 
-        if (!(members.contains(user))) {
-            members += ","+user;
+        // if not empty, simply add to existing string, unless username already there with a value in which case we replace the value and the substring
+        if (!(currChallenge.length()<2)) {
+            String[] challenges = currChallenge.split(",");
+            String[] finals = challenges.clone();
+            for (int i=0; i<challenges.length; i++) {
+                String s = challenges[i];
+                // if already a string with that username, replace with string with new level
+                if (s.contains(email)) {
+                    Log.d(tag, "[setCurrChallenge] string s in challenges has occurence of username ! ===================");
+                    finals[i] = result;
+                    Log.d(tag, "[setCurrChallenge] string res " + result + " replaced old string===================");
+                } else {
+                    finals[i] = s;
+                }
+            }
+            answer = Joiner.on(",").join(finals);
+            Log.d(tag, "[setCurrChallenge]: current challenges not empty, " + answer + " added to saved string.");
         } else {
-            members = user;
+            answer = result;
+        }
+        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+        editor.putString(CURR_CHALLENGE, answer);
+        editor.apply();
+        Log.d(tag, "[setCurrChallenge]: current challenges " + answer + " saved in preferences=============");
+
+    }
+
+    static void setGoldDirectly(Context context, double gold) {
+        String email = getUserName(context);
+        String golds = getSharedPreferences(context).getString(GOLD, "0");
+        String answer = "";
+        // if string not empty
+        if (!(golds.length() < 2)) {
+            String[] coins = golds.split(",");
+            for (Integer i = 0; i < coins.length; i++) {
+                // when we get to string holding level for that player
+                String s = coins[i];
+                if (s.contains(email)) {
+                    String ans = email+ ":" + String.valueOf(gold);
+                    coins[i] = ans;
+                    Log.d(tag, "[addToGold] ans " + ans + " replaced old string s in gold " + s);
+                } else {
+                    // otherwise leave string the same
+                    coins[i] = s;
+                }
+            }
+            answer = Joiner.on(",").join(coins);
+        } else { // if it is empty
+            answer = email + ":" + String.valueOf(gold);
+        }
+        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+        editor.putString(GOLD, answer);
+        editor.apply();
+        Log.d(tag, "[addToGold]: final coin string " + answer + " saved in preferences");
+    }
+
+    static void setTotalDistance(Context context, double distance) {
+        String email = getUserName(context);
+        String distances = getSharedPreferences(context).getString(TOTAL_DISTANCE, "0");
+        String answer = "";
+        // if string not empty
+        if (!(distances.length() < 2)) {
+            String[] coins = distances.split(",");
+            for (Integer i = 0; i < coins.length; i++) {
+                // when we get to string holding distance travelled for that player
+                String s = coins[i];
+                if (s.contains(email)) {
+                    String ans = email+ ":" + String.valueOf(distance);
+                    coins[i] = ans;
+                    Log.d(tag, "[setTotalDistance] ans " + ans + " replaced old string s in distance " + s);
+                } else {
+                    // otherwise leave string the same
+                    coins[i] = s;
+                }
+            }
+            answer = Joiner.on(",").join(coins);
+        } else { // if it is empty
+            answer = email + ":" + String.valueOf(distance);
+        }
+        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+        editor.putString(TOTAL_DISTANCE, answer);
+        editor.apply();
+        Log.d(tag, "[setTotalDistance]: final coin string " + answer + " saved in preferences");
+    }
+
+    static void setPlayerImage(Context context, String filepath) {
+        String email = getUserName(context);
+        String imgs = getSharedPreferences(context).getString(SAVED_IMAGES, "0");
+        String answer;
+        // if string not empty
+        if (!(imgs.length() < 2)) {
+            String[] coins = imgs.split(",");
+            for (Integer i = 0; i < coins.length; i++) {
+                // when we get to string holding level for that player
+                String s = coins[i];
+                if (s.contains(email)) {
+                    String ans = email + ":" + filepath;
+                    coins[i] = ans;
+                    Log.d(tag, "[setPlayerImage] ans " + ans + " replaced old string s in saved images" + s);
+                } else {
+                    // otherwise leave string the same
+                    coins[i] = s;
+                }
+            }
+            answer = Joiner.on(",").join(coins);
+        } else { // if it is empty
+            answer = email + ":" + filepath;
+        }
+        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+        editor.putString(SAVED_IMAGES, answer);
+        editor.apply();
+        Log.d(tag, "[setPlayerImage]: final images string " + answer + " saved in preferences");
+    }
+
+    static void addMember(Context context, String email) {
+        String members = getSharedPreferences(context).getString(MEMBERS, "0");
+
+        if (!(members.contains(email))) {
+            members += ","+email;
+        } else {
+            members = email;
         }
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
         editor.putString(MEMBERS, members);
@@ -127,8 +222,39 @@ public class MySharedPreferences {
     /////////////
     // Adders ///
     /////////////
+    static void sendCoin(Context context, Coin coin, String email) {
+        String totalcoins = getSharedPreferences(context).getString(GOLD, "0");
+        String answer = "";
+        // if string not empty
+        if (!(totalcoins.length() < 2)) {
+            String[] coins = totalcoins.split(",");
+            for (Integer i = 0; i < coins.length; i++) {
+                // when we get to string holding intended player to send to
+                String s = coins[i];
+                if (s.contains(email)) {
+                    Log.d(tag, "[sendCoin] string s in members has occurence of username ! ===================");
+                    String ans = email;
+                    double level = Integer.parseInt(s.split(":")[1]);
+                    // add the gold value of coin sent to their gold total
+                    level += coin.getGold();
+                    ans = ans + ":" + level;
+                    coins[i] = ans;
+                } else {
+                    // otherwise leave string the same
+                    coins[i] = s;
+                }
+            }
+            answer = Joiner.on(",").join(coins);
+        } else { // if it is empty
+            answer = email + ":" + String.valueOf(1);
+        }
+        SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+        editor.putString(GOLD, answer);
+        editor.apply();
+        Log.d(tag, "[sendCoin]: final coin string " + answer + " saved in gold preferences");
+    }
 
-    public static void addSpecialCoin(Context context, Coin coin) {
+    static void addSpecialCoin(Context context, Coin coin) {
         String email = getUserName(context);
         String specialcoins = getSharedPreferences(context).getString(SPECIAL_COINS, "0");
         String result = email + ":" + coin.stringify(); // format of coin stringify id + "-" + value + "-" + currency;
@@ -160,7 +286,7 @@ public class MySharedPreferences {
         Log.d(tag, "[addSpecialCoin]: coin string " + result + " saved in preferences");
     }
 
-    private static void add2CoinTotal(Context context) {
+    static void add2CoinTotal(Context context) {
         String email = getUserName(context);
         String totalcoins = getSharedPreferences(context).getString(TOTAL_COINS, "0");
         String answer = "";
@@ -192,8 +318,7 @@ public class MySharedPreferences {
         Log.d(tag, "[add2CoinTotal]: final coin string " + answer + " saved in preferences");
     }
 
-    public static void add2SentCoins(Context context, Coin coin,int where) { // where is 1 if wallet, 0 if special coins
-        Player player = MapActivity.player;
+    static void add2SentCoins(Context context, Coin coin,int where) { // where is 1 if wallet, 0 if special coins
         String email = getUserName(context);
         String sentcoins = getSharedPreferences(context).getString(SENT_COINS, "0");
         String answer = "";
@@ -222,14 +347,13 @@ public class MySharedPreferences {
         if (where==1) {
             removeWalletCoin(context,coin);
         }
-
         SharedPreferences.Editor editor = getSharedPreferences(context).edit();
         editor.putString(SENT_COINS, answer);
         editor.apply();
         Log.d(tag, "[add2SentCoins]: final coin string " + answer + " saved in preferences");
     }
 
-    public static void addBankCoin(Context context, Coin coin, int where) {
+    static void addBankCoin(Context context, Coin coin, int where) {
         String email = getUserName(context);
         String bankedcoins = getSharedPreferences(context).getString(BANKED_COINS, "0");
         String result = email + ":" + coin.stringify(); // format of coin stringify id + "-" + value + "-" + currency;
@@ -270,7 +394,7 @@ public class MySharedPreferences {
     }
 
     // adds string email:coin-details, email:coin-details, for each coin in wallet
-    public static void addWalletCoin(Context context, Coin coin) {
+    static void addWalletCoin(Context context, Coin coin) {
         String email = getUserName(context);
         String walletcoins = getSharedPreferences(context).getString(WALLET_COINS, "0");
         String result = email + ":" + coin.stringify(); // format of coin stringify id + "-" + value + "-" + currency;
@@ -301,7 +425,7 @@ public class MySharedPreferences {
         Log.d(tag, "[addWalletCoin]: coin string " + result + " saved in preferences");
     }
 
-    public static void addToGold(Context context, Coin coin) {
+    static void addToGold(Context context, Coin coin) {
         String email = getUserName(context);
         String golds = getSharedPreferences(context).getString(GOLD, "0");
         double value = coin.getGold();
@@ -338,7 +462,7 @@ public class MySharedPreferences {
     // Removers //
     //////////////
 
-    public static void removeWalletCoin(Context context, Coin coin) {
+    static void removeWalletCoin(Context context, Coin coin) {
         String email = getUserName(context);
         String walletCoins = getSharedPreferences(context).getString(WALLET_COINS, "0");
         String answer = "";
@@ -366,7 +490,7 @@ public class MySharedPreferences {
         Log.d(tag, "[removeWalletCoin]: final coin string " + answer + " saved in preferences");
     }
 
-    public static void removeSpecialCoin(Context context, Coin coin) {
+    static void removeSpecialCoin(Context context, Coin coin) {
         String email = getUserName(context);
         String speccoins = getSharedPreferences(context).getString(SPECIAL_COINS, "0");
         String answer = "";
@@ -399,13 +523,16 @@ public class MySharedPreferences {
     /////////////
 
     // Get email of current user =====================//
-    public static String getUserName(Context context) {
-        String ans = getSharedPreferences(context).getString(CURR_USER_NAME, "0");
+    static String getUserName(Context context) {
+        String ans = getSharedPreferences(context).getString(CURR_USER_NAME, "");
+        if (ans.equals("")) {
+            return null;
+        }
         return ans;
     }
 
     // Get total coins for player ====================//
-    public static int getTotalCoins(Context context, String email) {
+    static int getTotalCoins(Context context, String email) {
         String totals = getSharedPreferences(context).getString(TOTAL_COINS, "0");
         if (totals.length()<2) {
             return 0;
@@ -422,60 +549,62 @@ public class MySharedPreferences {
     }
 
     // Get current mode ==============================// where false=standard mode and true=hard mode
-    public static Boolean getCurrentMode(Context context, String email) {
+    static Boolean getCurrentMode(Context context, String email) {
         String modes = getSharedPreferences(context).getString(CURR_MODE, "0");
         if (modes.length()<2) {
+            Log.d(tag, "[getCurrentMode]: returning false");
             return Boolean.FALSE;
         }
         String[] mode = modes.split(","); // as we have formatted the string as "email:mode", "email:mode" ...
         for (String s:mode) {
             if (s.contains(email)) {
                 Boolean acMode = Boolean.parseBoolean(s.split(":")[1]);
+                Log.d(tag, "[getCurrentMode]: returning "+ String.valueOf(acMode));
                 return acMode;
             }
         }
+        Log.d(tag, "[getCurrentMode]: returning false");
         return Boolean.FALSE;
     }
 
-//    // Get current time ==============================//
-//    public static Integer getCurrentTime(Context context, String email) {
-//        String modes = getSharedPreferences(context).getString(CURR_MODE, "0");
-//        if (modes.length()<2) {
-//            return 0;
-//        }
-//        String[] mode = modes.split(","); // as we have formatted the string as "email:mode", "email:mode" ...
-//        for (String s:mode) {
-//            if (s.contains(CURR_USER_NAME)) {
-//                Boolean acMode = Boolean.parseBoolean(s.split(":")[1]);
-//                if (acMode=Boolean.TRUE) {
-//                    return 1; // for one hour!
-//                }
-//                return 0;
-//            }
-//        }
-//        return 0; // unless mode is true, as in hard, we return 0 - if it is on hard mode, we return 1 as the one hour coins can stay inactive
-//    }
-//
-//    // Get current radius ============================//
-//    public static Integer getCurrentRadius(Context context) {
-//        String modes = getSharedPreferences(context).getString(CURR_MODE, "0");
-//        if (modes.length()<2) {
-//            return 0;
-//        }
-//        String[] mode = modes.split(","); // as we have formatted the string as "email:mode", "email:mode" ...
-//        for (String s:mode) {
-//            if (s.contains(CURR_USER_NAME)) {
-//                Boolean acMode = Boolean.parseBoolean(s.split(":")[1]);
-//                if (acMode==Boolean.TRUE) {
-//                    return 150; // for 150 meters!
-//                }
-//                return 0;
-//            }
-//        }
-//        return 0; // unless mode is true, as in hard, we return 0 - if it is on hard mode, we return 150 as the radius for inactive coins
-//    }
+    static String getPlayerImage(Context context, String email) {
+        String images = getSharedPreferences(context).getString(SAVED_IMAGES, "");
+        String pimg = "";
 
-    public static double getGoldTotal(Context context, String email) {
+        if (images.length()<2) {
+            return "";
+        }
+        String[] imgs = images.split(",");
+        for (String a:imgs) {
+            if (a.contains(email)) {
+                pimg = a.split(":")[1];
+            }
+        }
+        return pimg;
+    }
+
+    static String getCurrChallenge(Context context, String email){
+        // Challenge contains
+        String currChallenge = getSharedPreferences(context).getString(CURR_CHALLENGE, "");
+        if(currChallenge.length()<2){
+            return "";
+        }
+        String challenge = "";
+        String[] challenges = currChallenge.split(",");
+        for(String entry : challenges){
+            if(entry.contains(email)){
+                if(!(currChallenge.split(":").length < 2)){
+                    challenge = currChallenge.split(":")[1];
+                }
+            }
+        }
+
+        // Get the second part and return it
+        Log.d(tag, "[getCurrChallenge]: returns: "+ challenge);
+        return challenge;
+    }
+
+    static double getGoldTotal(Context context, String email) {
         String golds = getSharedPreferences(context).getString(GOLD, "0");
         if (golds.length()< 2) {
             return 0;
@@ -490,8 +619,23 @@ public class MySharedPreferences {
         return 0;
     }
 
+    static double getTotalDistance(Context context, String email) {
+        String distances = getSharedPreferences(context).getString(TOTAL_DISTANCE, "0");
+        if (distances.length()< 2) {
+            return 0;
+        }
+        String[] dist = distances.split(",");
+        for (String s:dist) {
+            if (s.contains(email)) {
+                double actdist = Double.parseDouble(s.split(":")[1]);
+                return actdist;
+            }
+        }
+        return 0;
+    }
+
     // Get wallet coins ==============================//
-    public static ArrayList<Coin> getWalletCoins(Context context, String email) {
+    static ArrayList<Coin> getWalletCoins(Context context, String email) {
         String coins = getSharedPreferences(context).getString(WALLET_COINS, "0");
         ArrayList<Coin> empty = new ArrayList<Coin>();
         if (coins.length()<2) {
@@ -522,7 +666,7 @@ public class MySharedPreferences {
         return finalcoins;
     }
 
-    public static ArrayList<Coin> getBankedCoins(Context context, String email) {
+    static ArrayList<Coin> getBankedCoins(Context context, String email) {
         String coins = getSharedPreferences(context).getString(BANKED_COINS, "0");
         ArrayList<Coin> empty = new ArrayList<Coin>();
         if (coins.length()<2) {
@@ -553,7 +697,7 @@ public class MySharedPreferences {
         return finalcoins;
     }
 
-    public static ArrayList<Coin> getStoredSpecials(Context context, String email) {
+    static ArrayList<Coin> getStoredSpecials(Context context, String email) {
         String coins = getSharedPreferences(context).getString(SPECIAL_COINS, "0");
         ArrayList<Coin> empty = new ArrayList<Coin>();
         if (coins.length()<2) {
@@ -585,7 +729,7 @@ public class MySharedPreferences {
         return finalcoins;
     }
 
-    public static int getTotalSentCoins(Context context, String email) {
+    static int getTotalSentCoins(Context context, String email) {
         String level = getSharedPreferences(context).getString(SENT_COINS, "0");
         if (level.length()< 2) {
             return 0;
@@ -600,7 +744,7 @@ public class MySharedPreferences {
         return 0;
     }
 
-    public static ArrayList<String> getFriends(Context context, String email) {
+    static ArrayList<String> getFriends(Context context, String email) {
         String members = getSharedPreferences(context).getString(MEMBERS, "0");
         ArrayList<String> empty = new ArrayList<>();
 
@@ -622,4 +766,5 @@ public class MySharedPreferences {
         return empty;
     }
 
+   
 }

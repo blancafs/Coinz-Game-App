@@ -142,7 +142,7 @@
                 android:background="@drawable/rounded_corner"
                 android:fontFamily="serif-monospace"
                 android:paddingTop="2dp"
-                android:text="Today's Currencies:"
+                android:text="Today's Conversion Rates:"
                 android:textColor="@color/white"
                 android:textSize="19sp"
                 android:textStyle="bold"
